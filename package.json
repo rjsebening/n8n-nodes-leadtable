@@ -1,0 +1,40 @@
+{
+  "name": "n8n-nodes-leadtable",
+  "version": "1.0.0",
+  "description": "n8n node for LeadTable API",
+  "license": "MIT",
+  "homepage": "",
+  "author": {
+    "name": "Jörg Sebening",
+    "email": "info@joergsebening.de"
+  },
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && npm run copy:icons",
+    "copy:icons": "cp nodes/**/*.svg dist/nodes/ 2>/dev/null || true",
+    "dev": "tsc --watch"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/LeadTableApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/LeadTable/LeadTable.node.js",
+      "dist/nodes/LeadTable/LeadTableTrigger.node.js"
+    ]
+  },
+  "keywords": [
+    "n8n-community-node-package"
+  ],
+  "dependencies": {
+    "n8n-workflow": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.16.16",
+    "typescript": "^5.1.3"
+  }
+}
