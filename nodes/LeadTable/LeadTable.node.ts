@@ -18,7 +18,7 @@ export class LeadTable implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Interact with LeadTable API for lead management',
+		description: 'Integration with LeadTable API (powered by agentur-systeme.de)',
 		defaults: {
 			name: 'LeadTable',
 		},

@@ -20,7 +20,7 @@ export class LeadTableTrigger implements INodeType {
 		group: ['trigger'],
 		version: 1,
 		subtitle: '={{$parameter["event"]}}',
-		description: 'Trigger workflows on LeadTable events',
+		description: 'Trigger workflows on LeadTable events - Integration with LeadTable API (powered by agentur-systeme.de)',
 		defaults: {
 			name: 'LeadTable Trigger',
 		},

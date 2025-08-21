@@ -1,13 +1,10 @@
 {
  "name": "n8n-nodes-leadtable",
  "version": "1.0.0",
- "description": "n8n custom node for LeadTable API - Lead management and webhook automation",
+ "description": "Seamless integration with LeadTable API – powered by agentur-systeme.de",
  "license": "MIT",
  "homepage": "https://github.com/redhat030/n8n-nodes-leadtable#readme",
- "author": {
-   "name": "Jörg Sebening",
-   "email": "dev@joerg-sebening.com"
- },
+ "author": "agentur-systeme.de",
  "repository": {
    "type": "git",
    "url": "https://github.com/redhat030/n8n-nodes-leadtable.git"
@@ -51,7 +48,8 @@
    "webhook",
    "automation",
    "crm",
-   "workflow"
+   "workflow",
+   "agentur-systeme.de"
  ],
  "dependencies": {
    "n8n-workflow": "^1.0.0"
