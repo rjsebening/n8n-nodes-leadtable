@@ -7,7 +7,10 @@ class LeadTable {
         this.description = {
             displayName: 'LeadTable',
             name: 'leadTable',
-            icon: 'fa:table',
+            icon: { 
+                light: 'file:leadtable.svg', 
+                dark: 'file:leadtable.svg' 
+            },
             group: ['transform'],
             version: 1,
             subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
