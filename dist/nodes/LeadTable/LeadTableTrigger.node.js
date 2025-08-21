@@ -7,9 +7,9 @@ class LeadTableTrigger {
         this.description = {
             displayName: 'LeadTable Trigger',
             name: 'leadTableTrigger',
-            icon: { 
-                light: 'file:leadtable.svg', 
-                dark: 'file:leadtable.svg' 
+            icon: {
+                light: 'file:leadtable.svg',
+                dark: 'file:leadtable.svg'
             },
             group: ['trigger'],
             version: 1,

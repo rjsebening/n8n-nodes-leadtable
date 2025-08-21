@@ -7,9 +7,9 @@ class LeadTable {
         this.description = {
             displayName: 'LeadTable',
             name: 'leadTable',
-            icon: { 
-                light: 'file:leadtable.svg', 
-                dark: 'file:leadtable.svg' 
+            icon: {
+                light: 'file:leadtable.svg',
+                dark: 'file:leadtable.svg'
             },
             group: ['transform'],
             version: 1,
