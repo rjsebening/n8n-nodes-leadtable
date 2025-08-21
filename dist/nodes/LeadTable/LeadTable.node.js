@@ -8,8 +8,8 @@ class LeadTable {
             displayName: 'LeadTable',
             name: 'leadTable',
             icon: {
-                light: 'file:leadtable.svg',
-                dark: 'file:leadtable.svg'
+                light: 'file:leadtable.png',
+                dark: 'file:leadtable.png'
             },
             group: ['transform'],
             version: 1,

@@ -14,8 +14,8 @@ export class LeadTableTrigger implements INodeType {
 		displayName: 'LeadTable Trigger',
 		name: 'leadTableTrigger',
         icon: { 
-            light: 'file:leadtable.svg', 
-            dark: 'file:leadtable.svg' 
+            light: 'file:leadtable.png', 
+            dark: 'file:leadtable.png' 
         },
 		group: ['trigger'],
 		version: 1,
