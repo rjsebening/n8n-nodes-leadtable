@@ -1,8 +1,56 @@
-node_modules
+# Build outputs
+dist/
+*.tsbuildinfo
+
+# Dependencies
+node_modules/
+
+# Package manager lock files (wähle eines basierend auf deinem Package Manager)
+package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
 .DS_Store
-.tmp
-tmp
-dist
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
 npm-debug.log*
-yarn.lock
-.vscode/launch.json
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Temporary folders
+tmp/
+temp/
