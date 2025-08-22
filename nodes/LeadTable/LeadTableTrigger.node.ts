@@ -13,10 +13,7 @@ export class LeadTableTrigger implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'LeadTable Trigger',
 		name: 'leadTableTrigger',
-        icon: { 
-            light: 'file:leadtable.png', 
-            dark: 'file:leadtable.png' 
-        },
+        icon: 'fa:table',
 		group: ['trigger'],
 		version: 1,
 		subtitle: '={{$parameter["event"]}}',

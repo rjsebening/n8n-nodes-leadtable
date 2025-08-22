@@ -7,14 +7,11 @@ class LeadTableTrigger {
         this.description = {
             displayName: 'LeadTable Trigger',
             name: 'leadTableTrigger',
-            icon: {
-                light: 'file:leadtable.png',
-                dark: 'file:leadtable.png'
-            },
+            icon: 'fa:table',
             group: ['trigger'],
             version: 1,
             subtitle: '={{$parameter["event"]}}',
-            description: 'Trigger workflows on LeadTable events',
+            description: 'Trigger workflows on LeadTable events - Integration with LeadTable API (powered by agentur-systeme.de)',
             defaults: {
                 name: 'LeadTable Trigger',
             },

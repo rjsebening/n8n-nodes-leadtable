@@ -7,14 +7,11 @@ class LeadTable {
         this.description = {
             displayName: 'LeadTable',
             name: 'leadTable',
-            icon: {
-                light: 'file:leadtable.png',
-                dark: 'file:leadtable.png'
-            },
+            icon: 'fa:table',
             group: ['transform'],
             version: 1,
             subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-            description: 'Interact with LeadTable API for lead management',
+            description: 'Integration with LeadTable API (powered by agentur-systeme.de)',
             defaults: {
                 name: 'LeadTable',
             },

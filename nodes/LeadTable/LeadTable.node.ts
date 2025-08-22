@@ -11,10 +11,7 @@ export class LeadTable implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'LeadTable',
 		name: 'leadTable',
-        icon: { 
-            light: 'file:leadtable.png', 
-            dark: 'file:leadtable.png' 
-        },
+        icon: 'fa:table',
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
