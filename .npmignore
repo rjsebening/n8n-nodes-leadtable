@@ -1,2 +1,82 @@
+# Source files (nur dist/ soll published werden)
+*.ts
+!*.d.ts
+tsconfig.json
+src/
+
+# Development files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+test/
+tests/
+__tests__/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+coverage/
+.nyc_output
+
+# Documentation (nur README.md wird benötigt)
+README.de.md
+docs/
+examples/
+
+# Build tools
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+webpack.config.js
+rollup.config.js
+
+# Environment files
+.env
+.env.*
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# OS generated files
 .DS_Store
-*.tsbuildinfo
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary folders
+tmp/
+temp/
+
+# Git files
+.git/
+.gitignore
+
+# Node modules (falls irrtümlich vorhanden)
+node_modules/
+
+# Development dependencies
+devDependencies/
+
+# Misc development files
+*.tgz
+.npmrc
