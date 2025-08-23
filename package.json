@@ -1,66 +1,78 @@
 {
  "name": "n8n-nodes-leadtable",
  "version": "1.0.0",
+ "type": "module",
  "description": "n8n custom node for LeadTable API - Lead management and webhook automation",
  "license": "MIT",
  "homepage": "https://github.com/redhat030/n8n-nodes-leadtable#readme",
  "author": {
-   "name": "Jörg Sebening",
-   "email": "dev@joerg-sebening.com"
+  "name": "Jörg Sebening",
+  "email": "dev@joerg-sebening.com"
  },
  "repository": {
-   "type": "git",
-   "url": "https://github.com/redhat030/n8n-nodes-leadtable.git"
+  "type": "git",
+  "url": "https://github.com/redhat030/n8n-nodes-leadtable.git"
  },
  "bugs": {
-   "url": "https://github.com/redhat030/n8n-nodes-leadtable/issues"
+  "url": "https://github.com/redhat030/n8n-nodes-leadtable/issues"
  },
  "engines": {
-   "node": ">=18.10",
-   "npm": ">=9.0.0"
+  "node": ">=18.10",
+  "npm": ">=9.0.0"
  },
  "main": "index.js",
  "scripts": {
-   "build": "tsc && npm run copy:assets",
-   "copy:assets": "find nodes -name '*.svg' -exec cp {} dist/nodes/LeadTable/ \\;",
-   "dev": "tsc --watch",
-   "clean": "rm -rf dist",
-   "prebuild": "npm run clean",
-   "prepublishOnly": "npm run build"
+  "build": "tsc && npm run copy:assets",
+  "copy:assets": "find nodes -name '*.svg' -exec cp {} dist/nodes/LeadTable/ \\;",
+  "dev": "tsc --watch",
+  "clean": "rm -rf dist",
+  "prebuild": "npm run clean",
+  "prepublishOnly": "npm run build",
+  "lint": "eslint nodes credentials --ext .ts",
+  "lint:fix": "eslint nodes credentials --ext .ts --fix",
+  "lint:all": "npm run lint && npm run lint:node"
  },
  "files": [
-   "dist/**/*",
-   "README.md",
-   "LICENSE"
+  "dist/**/*",
+  "README.md",
+  "LICENSE"
  ],
  "n8n": {
-   "n8nNodesApiVersion": 1,
-   "credentials": [
-     "dist/credentials/LeadTableApi.credentials.js"
-   ],
-   "nodes": [
-     "dist/nodes/LeadTable/LeadTable.node.js",
-     "dist/nodes/LeadTable/LeadTableTrigger.node.js"
-   ]
+  "n8nNodesApiVersion": 1,
+  "credentials": [
+   "dist/credentials/LeadTableApi.credentials.js"
+  ],
+  "nodes": [
+   "dist/nodes/LeadTable/LeadTable.node.js",
+   "dist/nodes/LeadTable/LeadTableTrigger.node.js"
+  ]
  },
  "keywords": [
-   "n8n-community-node-package",
-   "n8n",
-   "leadtable",
-   "lead-management", 
-   "webhook",
-   "automation",
-   "crm",
-   "workflow"
+  "n8n-community-node-package",
+  "n8n",
+  "leadtable",
+  "lead-management",
+  "webhook",
+  "automation",
+  "crm",
+  "workflow"
  ],
  "dependencies": {
-   "n8n-workflow": "^1.0.0"
+  "n8n-workflow": "*"
  },
  "devDependencies": {
-   "@types/node": "^18.16.16",
-   "typescript": "^5.1.3"
+  "@types/node": "^18.16.16",
+  "@typescript-eslint/eslint-plugin": "^8.40.0",
+  "@typescript-eslint/parser": "^8.40.0",
+  "eslint": "^9.34.0",
+  "eslint-config-prettier": "^10.1.8",
+  "eslint-plugin-n8n-nodes-base": "^1.16.3",
+  "eslint-plugin-prettier": "^5.5.4",
+  "prettier": "^3.6.2",
+  "typescript": "^5.1.3",
+  "typescript-eslint": "^8.40.0"
  },
  "peerDependencies": {
-   "n8n-workflow": "*"
+  "n8n-workflow": "*"
  }
 }
