@@ -18,8 +18,7 @@ export class LeadTable implements INodeType {
     group: ['transform'],
     version: 1,
     subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-    description:
-      'Integration with LeadTable API (powered by agentur-systeme.de)',
+    description: 'Integration with LeadTable API (powered by agentur-systeme.de)',
     defaults: {
       name: 'LeadTable',
     },
@@ -352,8 +351,7 @@ export class LeadTable implements INodeType {
           },
         },
         default: false,
-        description:
-          'Whether to make this question visible in the lead profile',
+        description: 'Whether to make this question visible in the lead profile',
       },
 
       // Lead Description Update
@@ -501,8 +499,7 @@ export class LeadTable implements INodeType {
             operation: ['addFile'],
           },
         },
-        description:
-          'Name of the binary property which contains the file data to be uploaded',
+        description: 'Name of the binary property which contains the file data to be uploaded',
       },
 
       // Webhook fields
@@ -628,9 +625,7 @@ export class LeadTable implements INodeType {
   methods = {
     loadOptions: {
       // Customer loading mit Response-Log
-      async getCustomers(
-        this: ILoadOptionsFunctions,
-      ): Promise<INodePropertyOptions[]> {
+      async getCustomers(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
         try {
           const credentials = await this.getCredentials('leadTableApi');
 
@@ -673,34 +668,23 @@ export class LeadTable implements INodeType {
               : undefined,
           }));
         } catch (error: any) {
-          const errorMessage =
-            error?.response?.body?.message || error.message || 'Unknown error';
-          throw new NodeOperationError(
-            this.getNode(),
-            `Failed to load customers: ${errorMessage}`,
-          );
+          const errorMessage = error?.response?.body?.message || error.message || 'Unknown error';
+          throw new NodeOperationError(this.getNode(), `Failed to load customers: ${errorMessage}`);
         }
       },
 
       // FIXED: Campaign loading mit loadOptionsDependsOn
-      async getCampaignsForCustomer(
-        this: ILoadOptionsFunctions,
-      ): Promise<INodePropertyOptions[]> {
+      async getCampaignsForCustomer(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
         try {
-          const customerForLeadCreate = this.getCurrentNodeParameter(
-            'customerForLeadCreate',
-          ) as string | undefined;
-          const customerForLeads = this.getCurrentNodeParameter(
-            'customerForLeads',
-          ) as string | undefined;
+          const customerForLeadCreate = this.getCurrentNodeParameter('customerForLeadCreate') as string | undefined;
+          const customerForLeads = this.getCurrentNodeParameter('customerForLeads') as string | undefined;
           const customerId = customerForLeadCreate || customerForLeads || '';
           if (!customerId) {
             return [
               {
                 name: 'Please select a customer first',
                 value: 'no-customer-selected',
-                description:
-                  'You must select a customer before campaigns can be loaded',
+                description: 'You must select a customer before campaigns can be loaded',
               },
             ];
           }
@@ -746,24 +730,17 @@ export class LeadTable implements INodeType {
           }
 
           return campaigns.map((campaign: any) => ({
-            name:
-              campaign.name ??
-              campaign.occupation ??
-              `Campaign ${campaign._id}`,
+            name: campaign.name ?? campaign.occupation ?? `Campaign ${campaign._id}`,
             value: campaign._id,
-            description: campaign.leadsCount
-              ? `Leads: ${campaign.leadsCount}`
-              : undefined,
+            description: campaign.leadsCount ? `Leads: ${campaign.leadsCount}` : undefined,
           }));
         } catch (error: any) {
-          const errorMessage =
-            error?.response?.body?.message || error.message || 'Unknown error';
+          const errorMessage = error?.response?.body?.message || error.message || 'Unknown error';
           return [
             {
               name: `Error loading campaigns: ${errorMessage}`,
               value: 'error-loading',
-              description:
-                'Please check your customer selection and credentials',
+              description: 'Please check your customer selection and credentials',
             },
           ];
         }
@@ -781,9 +758,7 @@ export class LeadTable implements INodeType {
     const credentials = await this.getCredentials('leadTableApi');
     const apiKey = credentials.apiKey as string;
     const email = credentials.email as string;
-    const baseUrl =
-      (credentials.baseUrl as string) ||
-      'https://api.lead-table.com/api/v3/external';
+    const baseUrl = (credentials.baseUrl as string) || 'https://api.lead-table.com/api/v3/external';
 
     for (let i = 0; i < items.length; i++) {
       try {
@@ -791,16 +766,7 @@ export class LeadTable implements INodeType {
 
         if (resource === 'auth') {
           if (operation === 'check') {
-            responseData = await makeApiRequest.call(
-              this,
-              'GET',
-              '/auth',
-              {},
-              {},
-              apiKey,
-              email,
-              baseUrl,
-            );
+            responseData = await makeApiRequest.call(this, 'GET', '/auth', {}, {}, apiKey, email, baseUrl);
           }
         } else if (resource === 'lead') {
           if (operation === 'create') {
@@ -812,46 +778,22 @@ export class LeadTable implements INodeType {
               data: leadData.data || [],
             };
 
-            responseData = await makeApiRequest.call(
-              this,
-              'POST',
-              '/lead/create',
-              {},
-              body,
-              apiKey,
-              email,
-              baseUrl,
-            );
+            responseData = await makeApiRequest.call(this, 'POST', '/lead/create', {}, body, apiKey, email, baseUrl);
           } else if (operation === 'get') {
             const leadId = this.getNodeParameter('leadId', i) as string;
-            const plainDescription = this.getNodeParameter(
-              'plainDescription',
-              i,
-            ) as boolean;
+            const plainDescription = this.getNodeParameter('plainDescription', i) as boolean;
 
             const qs: any = {};
             if (plainDescription) {
               qs.plainDescription = 'true';
             }
 
-            responseData = await makeApiRequest.call(
-              this,
-              'GET',
-              `/lead/${leadId}`,
-              qs,
-              {},
-              apiKey,
-              email,
-              baseUrl,
-            );
+            responseData = await makeApiRequest.call(this, 'GET', `/lead/${leadId}`, qs, {}, apiKey, email, baseUrl);
           } else if (operation === 'update') {
             const leadId = this.getNodeParameter('leadId', i) as string;
             const question = this.getNodeParameter('question', i) as string;
             const answer = this.getNodeParameter('answer', i) as string;
-            const setVisibleInProfile = this.getNodeParameter(
-              'setVisibleInProfile',
-              i,
-            ) as boolean;
+            const setVisibleInProfile = this.getNodeParameter('setVisibleInProfile', i) as boolean;
 
             const body = {
               question,
@@ -859,22 +801,10 @@ export class LeadTable implements INodeType {
               setVisibleInProfile,
             };
 
-            responseData = await makeApiRequest.call(
-              this,
-              'PUT',
-              `/lead/${leadId}`,
-              {},
-              body,
-              apiKey,
-              email,
-              baseUrl,
-            );
+            responseData = await makeApiRequest.call(this, 'PUT', `/lead/${leadId}`, {}, body, apiKey, email, baseUrl);
           } else if (operation === 'updateDescription') {
             const leadId = this.getNodeParameter('leadId', i) as string;
-            const description = this.getNodeParameter(
-              'description',
-              i,
-            ) as string;
+            const description = this.getNodeParameter('description', i) as string;
 
             const body = {
               description,
@@ -939,15 +869,9 @@ export class LeadTable implements INodeType {
             );
           } else if (operation === 'addFile') {
             const leadId = this.getNodeParameter('leadId', i) as string;
-            const binaryPropertyName = this.getNodeParameter(
-              'binaryPropertyName',
-              i,
-            ) as string;
+            const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i) as string;
 
-            const binaryData = this.helpers.assertBinaryData(
-              i,
-              binaryPropertyName,
-            );
+            const binaryData = this.helpers.assertBinaryData(i, binaryPropertyName);
 
             const formData = new FormData();
             formData.append('file', binaryData.data, binaryData.fileName);
@@ -986,16 +910,7 @@ export class LeadTable implements INodeType {
 
             const qs = { page, limit };
 
-            responseData = await makeApiRequest.call(
-              this,
-              'GET',
-              '/customer/all',
-              qs,
-              {},
-              apiKey,
-              email,
-              baseUrl,
-            );
+            responseData = await makeApiRequest.call(this, 'GET', '/customer/all', qs, {}, apiKey, email, baseUrl);
           }
         } else if (resource === 'webhook') {
           if (operation === 'attach') {
@@ -1011,26 +926,13 @@ export class LeadTable implements INodeType {
               layer,
             };
 
-            responseData = await makeApiRequest.call(
-              this,
-              'POST',
-              '/attachWebhook',
-              {},
-              body,
-              apiKey,
-              email,
-              baseUrl,
-            );
+            responseData = await makeApiRequest.call(this, 'POST', '/attachWebhook', {}, body, apiKey, email, baseUrl);
           } else if (operation === 'remove') {
             const topic = this.getNodeParameter('topic', i) as string;
             const layer = this.getNodeParameter('layer', i) as string;
             const id = this.getNodeParameter('id', i) as string;
             const webhookUrl = this.getNodeParameter('webhookUrl', i) as string;
-            const relatedId = this.getNodeParameter(
-              'relatedId',
-              i,
-              '',
-            ) as string;
+            const relatedId = this.getNodeParameter('relatedId', i, '') as string;
 
             const qs: any = {
               topic,
@@ -1043,16 +945,7 @@ export class LeadTable implements INodeType {
               qs.relatedID = relatedId;
             }
 
-            responseData = await makeApiRequest.call(
-              this,
-              'DELETE',
-              '/removeWebhook',
-              qs,
-              {},
-              apiKey,
-              email,
-              baseUrl,
-            );
+            responseData = await makeApiRequest.call(this, 'DELETE', '/removeWebhook', qs, {}, apiKey, email, baseUrl);
           } else if (operation === 'poll') {
             const campaignId = this.getNodeParameter('campaignId', i) as string;
             const topic = this.getNodeParameter('topic', i) as string;
@@ -1155,8 +1048,7 @@ async function makeApiRequest(
     let errorMessage = `LeadTable API request failed: ${error.statusCode || 'UNKNOWN'}`;
 
     if (error.statusCode === 403) {
-      errorMessage +=
-        ' - Authentication failed. Please check your API Key and Email address.';
+      errorMessage += ' - Authentication failed. Please check your API Key and Email address.';
     } else if (error.response?.body?.error) {
       errorMessage += ` - "${error.response.body.error}"`;
     } else if (error.message) {

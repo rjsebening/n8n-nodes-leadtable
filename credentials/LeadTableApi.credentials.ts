@@ -1,9 +1,4 @@
-import {
-  IAuthenticateGeneric,
-  ICredentialTestRequest,
-  ICredentialType,
-  INodeProperties,
-} from 'n8n-workflow';
+import { IAuthenticateGeneric, ICredentialTestRequest, ICredentialType, INodeProperties } from 'n8n-workflow';
 
 export class LeadTableApi implements ICredentialType {
   name = 'leadTableApi';

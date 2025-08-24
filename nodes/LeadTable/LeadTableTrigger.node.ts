@@ -77,8 +77,7 @@ export class LeadTableTrigger implements INodeType {
           {
             name: 'Customer (All Tables)',
             value: 'customer',
-            description:
-              'Receive events from all tables of a specific customer',
+            description: 'Receive events from all tables of a specific customer',
           },
           {
             name: 'Table (Specific Campaign)',
@@ -129,8 +128,7 @@ export class LeadTableTrigger implements INodeType {
         name: 'includeLead',
         type: 'boolean',
         default: true,
-        description:
-          'Whether to automatically fetch full lead details when triggered',
+        description: 'Whether to automatically fetch full lead details when triggered',
       },
       {
         displayName: 'Info',
@@ -140,8 +138,7 @@ export class LeadTableTrigger implements INodeType {
         displayOptions: {
           show: {},
         },
-        description:
-          'ℹ️ To find IDs: Use LeadTable node with "Customer > Get All", then "Campaign > Get All".',
+        description: 'ℹ️ To find IDs: Use LeadTable node with "Customer > Get All", then "Campaign > Get All".',
       },
     ],
   };
@@ -233,9 +230,7 @@ export class LeadTableTrigger implements INodeType {
         const credentials = await this.getCredentials('leadTableApi');
         const apiKey = credentials.apiKey as string;
         const email = credentials.email as string;
-        const baseUrl =
-          (credentials.baseUrl as string) ||
-          'https://api.lead-table.com/api/v3/external';
+        const baseUrl = (credentials.baseUrl as string) || 'https://api.lead-table.com/api/v3/external';
 
         try {
           const body: IDataObject = {
@@ -249,18 +244,12 @@ export class LeadTableTrigger implements INodeType {
             body.campaignID = email;
           } else if (webhookLevel === 'customer') {
             if (!customerId) {
-              throw new NodeOperationError(
-                this.getNode(),
-                'Customer ID is required for customer-level webhooks',
-              );
+              throw new NodeOperationError(this.getNode(), 'Customer ID is required for customer-level webhooks');
             }
             body.campaignID = customerId;
           } else if (webhookLevel === 'table') {
             if (!campaignId) {
-              throw new NodeOperationError(
-                this.getNode(),
-                'Campaign/Table ID is required for table-level webhooks',
-              );
+              throw new NodeOperationError(this.getNode(), 'Campaign/Table ID is required for table-level webhooks');
             }
             body.campaignID = campaignId;
           }
@@ -292,11 +281,9 @@ export class LeadTableTrigger implements INodeType {
           }
 
           if (error.statusCode === 404) {
-            errorMessage +=
-              '. The ID might not exist. Please verify using the LeadTable node.';
+            errorMessage += '. The ID might not exist. Please verify using the LeadTable node.';
           } else if (error.statusCode === 403) {
-            errorMessage +=
-              '. Please check your API credentials and the provided IDs.';
+            errorMessage += '. Please check your API credentials and the provided IDs.';
           }
 
           throw new NodeOperationError(this.getNode(), errorMessage);
@@ -319,9 +306,7 @@ export class LeadTableTrigger implements INodeType {
         const credentials = await this.getCredentials('leadTableApi');
         const apiKey = credentials.apiKey as string;
         const email = credentials.email as string;
-        const baseUrl =
-          (credentials.baseUrl as string) ||
-          'https://api.lead-table.com/api/v3/external';
+        const baseUrl = (credentials.baseUrl as string) || 'https://api.lead-table.com/api/v3/external';
 
         try {
           let targetId = '';
@@ -359,10 +344,7 @@ export class LeadTableTrigger implements INodeType {
           this.logger.debug('Webhook deleted successfully');
           return true;
         } catch (error: any) {
-          throw new NodeOperationError(
-            this.getNode(),
-            `Error deleting webhook: ${error.message}`,
-          );
+          throw new NodeOperationError(this.getNode(), `Error deleting webhook: ${error.message}`);
         }
       },
     },
@@ -381,9 +363,7 @@ export class LeadTableTrigger implements INodeType {
         const credentials = await this.getCredentials('leadTableApi');
         const apiKey = credentials.apiKey as string;
         const email = credentials.email as string;
-        const baseUrl =
-          (credentials.baseUrl as string) ||
-          'https://api.lead-table.com/api/v3/external';
+        const baseUrl = (credentials.baseUrl as string) || 'https://api.lead-table.com/api/v3/external';
 
         const leadDetails = await this.helpers.request({
           method: 'GET',
@@ -401,10 +381,7 @@ export class LeadTableTrigger implements INodeType {
           leadDetails,
         };
       } catch (error: any) {
-        throw new NodeOperationError(
-          this.getNode(),
-          `Error fetching lead details: ${error.message}`,
-        );
+        throw new NodeOperationError(this.getNode(), `Error fetching lead details: ${error.message}`);
       }
     }
 

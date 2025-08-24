@@ -23,7 +23,7 @@ export default [
     },
     rules: {
       'prettier/prettier': ['warn', { singleQuote: true }],
-      'quotes': ['error', 'single', { allowTemplateLiterals: true }],
+      quotes: ['error', 'single', { allowTemplateLiterals: true }],
       'no-console': 'off',
       '@typescript-eslint/ban-ts-comment': 'error',
     },

@@ -19,14 +19,6 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
   },
-  "include": [
-    "nodes/**/*",
-    "credentials/**/*",
-    "index.ts"
-  ],
-  "exclude": [
-    "dist",
-    "node_modules",
-    "**/*.test.ts"
-  ]
+  "include": ["nodes/**/*", "credentials/**/*", "index.ts"],
+  "exclude": ["dist", "node_modules", "**/*.test.ts"]
 }

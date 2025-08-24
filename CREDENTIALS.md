@@ -9,21 +9,25 @@ This file describes how to create credentials for the **LeadTable API** in n8n t
 To use the integration, you need the following information:
 
 1. **API Key (`x-api-key`)**
+
 - Your personal API key for LeadTable.
 - You can get this from the [LeadTable Portal](https://portal.lead-table.com/).
-Go to **Settings → API Token → Create New API Token** or manage an existing one.
+  Go to **Settings → API Token → Create New API Token** or manage an existing one.
 - Tip: Give the token a meaningful name, e.g., `n8n-leadtable-token`.
 
 2. **Agency Email (`email`)**
+
 - The email address of your LeadTable agency's account holder.
 - This is used together with the API key for authentication.
 
-3. **Base URL (`baseUrl`)** *(Default stored)*
+3. **Base URL (`baseUrl`)** _(Default stored)_
+
 - Default value:
 
 ```
 https://api.lead-table.com/api/v3/external
 ```
+
 - This value is already pre-filled when creating credentials in n8n and usually **does not need to be adjusted**.
 
 ## ⚙️ Setup in n8n
@@ -31,9 +35,11 @@ https://api.lead-table.com/api/v3/external
 1. Open n8n and go to **Credentials → Add New Credential**.
 2. Select **LeadTable API**.
 3. Enter the values:
+
 - **API Key:** Your `x-api-key` from the portal
 - **Email:** Your agency owner email
 - **Base URL:** (optional, default value is recommended)
+
 4. Save.
 
 ## ✅ Test connection
