@@ -6,12 +6,12 @@
   "resources": {
     "primaryDocumentation": [
       {
-        "url": "https://github.com/redhat030/n8n-nodes-leadtable/blob/main/README.md"
+        "url": "https://github.com/rjsebening/n8n-nodes-leadtable/blob/main/README.md"
       }
     ],
     "credentialDocumentation": [
       {
-        "url": "https://github.com/redhat030/n8n-nodes-leadtable/blob/main/CREDENTIALS.md"
+        "url": "https://github.com/rjsebening/n8n-nodes-leadtable/blob/main/CREDENTIALS.md"
       }
     ]
   }

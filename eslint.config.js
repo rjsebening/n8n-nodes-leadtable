@@ -1,12 +1,18 @@
 import tsParser from '@typescript-eslint/parser';
-import tsPlugin from '@typescript-eslint/eslint-plugin';
-import prettierPlugin from 'eslint-plugin-prettier';
-import n8nPlugin from 'eslint-plugin-n8n-nodes-base';
+import ts from '@typescript-eslint/eslint-plugin';
+import prettier from 'eslint-plugin-prettier';
+import n8n from 'eslint-plugin-n8n-nodes-base';
+import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default [
   {
     ignores: ['dist/**', 'node_modules/**'],
   },
+  js.configs.recommended, // ESLint JS defaults
+  ...tseslint.configs.recommended, // TS rules
+  eslintConfigPrettier, // disables conflicting rules with Prettier
   {
     files: ['**/*.ts'],
     languageOptions: {
@@ -17,15 +23,14 @@ export default [
       },
     },
     plugins: {
-      '@typescript-eslint': tsPlugin,
-      prettier: prettierPlugin,
-      'n8n-nodes-base': n8nPlugin,
+      '@typescript-eslint': ts,
+      prettier,
+      'n8n-nodes-base': n8n,
     },
     rules: {
-      'prettier/prettier': ['warn', { singleQuote: true }],
-      quotes: ['error', 'single', { allowTemplateLiterals: true }],
-      'no-console': 'off',
+      'prettier/prettier': 'warn',
       '@typescript-eslint/ban-ts-comment': 'error',
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 ];

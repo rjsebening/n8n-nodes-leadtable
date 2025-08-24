@@ -4,17 +4,17 @@
   "type": "module",
   "description": "n8n custom node for LeadTable API - Lead management and webhook automation",
   "license": "MIT",
-  "homepage": "https://github.com/redhat030/n8n-nodes-leadtable#readme",
+  "homepage": "https://github.com/rjsebening/n8n-nodes-leadtable#readme",
   "author": {
     "name": "Jörg Sebening",
     "email": "dev@joerg-sebening.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/redhat030/n8n-nodes-leadtable.git"
+    "url": "https://github.com/rjsebening/n8n-nodes-leadtable.git"
   },
   "bugs": {
-    "url": "https://github.com/redhat030/n8n-nodes-leadtable/issues"
+    "url": "https://github.com/rjsebening/n8n-nodes-leadtable/issues"
   },
   "engines": {
     "node": ">=18.10",
@@ -22,8 +22,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "build": "tsc && npm run copy:assets",
-    "copy:assets": "find nodes -name '*.svg' -exec cp {} dist/nodes/LeadTable/ \\;",
+    "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "prebuild": "npm run clean",

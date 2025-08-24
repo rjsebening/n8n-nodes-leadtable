@@ -1,10 +1,27 @@
 # n8n-nodes-leadtable
 
-Eine professionelle n8n Custom Node für die nahtlose Integration mit der LeadTable API. Automatisieren Sie Ihre Lead-Management-Workflows mit umfassenden CRUD-Operationen und Echtzeit-Webhook-Unterstützung.
-
 ![LeadTable Node](https://img.shields.io/badge/n8n-community--node-FF6D5A)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
+
+Eine professionelle n8n Custom Node für die nahtlose Integration mit der LeadTable API. Automatisieren Sie Ihre Lead-Management-Workflows mit umfassenden CRUD-Operationen und Echtzeit-Webhook-Unterstützung.
+
+
+## Was ist n8n?
+
+n8n ist ein einfach zu bedienendes Tool, mit dem du Aktionen zwischen verschiedenen Web-Apps, wie LeadTable, automatisieren kannst.
+
+Das Erstellen von sogenannten "Workflows" zwischen Apps automatisiert viele der manuellen Aufgaben.
+
+So kannst du dir oder deinem Team enorm viel Zeit sparen.
+
+## ⚖️ Rechtlicher Hinweis
+
+Diese Community Node verwendet die öffentliche LeadTable API und ist nicht mit LeadTable verbunden oder von LeadTable gesponsert.
+
+Alle Markenzeichen gehören ihren jeweiligen Eigentümern.
+
+**Hinweis**: Dies ist eine von der Community entwickelte Node für die LeadTable API. Für offiziellen Support wende dich bitte direkt an LeadTable.
 
 ## 🚀 Überblick
 
@@ -121,4 +138,33 @@ Diese n8n Custom Node ermöglicht die vollständige Integration mit LeadTable - 
 
 ## 📖 Anwendungsbeispiele
 
-folgt....
+-   Leads aus LeadTable automatisch in dein CRM übernehmen
+    
+-   Sofortige Benachrichtigung an dein Sales-Team (Slack, Teams, E-Mail)
+    
+-   Lead-Daten mit externen Infos anreichern, bevor sie ins System wandern
+    
+-   Vollautomatisches Onboarding starten, sobald ein neuer Lead eingeht
+   
+
+## 🌍 Warum das wichtig ist
+
+Viele Agenturen generieren Leads – aber verlieren sie durch **Chaos, manuelle Arbeit oder fehlende Prozesse**.
+
+Mit dieser Node stellst du sicher, dass:
+
+-   **kein Lead verloren geht**
+    
+-   **jeder Lead automatisch weiterverarbeitet wird**
+    
+-   **deine Prozesse endlich skalierbar sind**
+    
+
+Das Ergebnis: Mehr Umsatz, weniger manuelle Arbeit, 100% Kontrolle.
+
+## 📬 Über den Autor
+
+Ich bin [Rezk Jörg Sebening](https://github.com/rjsebening) – **Business Automation Experte für den DACH-Markt**.  
+Ich entwickle Prozesse, Systeme und n8n-Nodes, die Agenturen & Coaches von manueller Arbeit befreien.
+
+👉 Folge mir hier auf GitHub, um weitere **exklusive DACH-Integrationen** nicht zu verpassen.

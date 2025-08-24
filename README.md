@@ -1,10 +1,22 @@
 # n8n-nodes-leadtable
 
-A professional n8n custom node for seamless integration with the LeadTable API. Automate your lead-management workflows with full CRUD operations and real-time webhook support.
-
 ![LeadTable Node](https://img.shields.io/badge/n8n-community--node-FF6D5A)  
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)  
 ![License](https://img.shields.io/badge/license-MIT-green)
+
+A professional n8n custom node for seamless integration with the LeadTable API. Automate your lead-management workflows with full CRUD operations and real-time webhook support.
+
+## What is n8n?
+
+n8n is an easy-to-use workflow automation tool that connects different apps and services, like LeadTable.  
+By creating "workflows" between apps, you can automate many manual tasks – saving you and your team valuable time.
+
+## ⚖️ Legal Notice
+
+This Community Node uses the public LeadTable API and is **not affiliated with, endorsed, or sponsored by LeadTable**.  
+All trademarks are the property of their respective owners.
+
+**Note**: This is a community-developed Node for the LeadTable API. For official support, please contact LeadTable directly.
 
 ## 🚀 Overview
 
@@ -164,4 +176,38 @@ Verify API connection and credentials
 
 ## 📖 Examples
 
-coming soon...
+-   Automatically create deals in your CRM when a new LeadTable lead comes in
+    
+-   Notify your sales team on Slack or Teams instantly
+    
+-   Enrich leads with external data before passing them on
+    
+-   Build complete onboarding pipelines triggered by LeadTable 
+
+## 🌍 Why this matters
+
+LeadTable helps agencies get the most from campaigns.  
+But **without proper automation, leads often get stuck in spreadsheets or inboxes**.
+
+This node changes that.  
+It connects LeadTable with your systems — making sure **every lead is processed, followed up, and monetized automatically**.
+
+## 📬 About the Author
+
+I’m [Rezk Jörg Sebening](https://github.com/rjsebening) – Business Automation Expert (DACH).  
+I build automation systems & n8n nodes that free agencies, coaches, and consultants from manual work.
+
+👉 Follow me on GitHub to stay updated with new DACH-focused integrations.
+
+
+## 📋 Disclaimer
+
+This unofficial community Node is **not affiliated with, supported, or sponsored by LeadTable**.  
+It only provides an interface to the publicly available LeadTable API under its terms of use.
+
+**Important Notes:**
+
+- This Node is developed and maintained by the community
+- For issues with the LeadTable API itself, please contact official LeadTable support
+- All LeadTable trademarks and logos belong to LeadTable
+- This Node only acts as a connector to the public API

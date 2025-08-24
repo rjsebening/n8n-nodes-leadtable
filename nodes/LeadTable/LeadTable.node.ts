@@ -7,7 +7,6 @@ import {
   INodePropertyOptions,
   NodeOperationError,
   NodeConnectionType,
-  NodeApiError,
 } from 'n8n-workflow';
 
 export class LeadTable implements INodeType {
@@ -641,7 +640,7 @@ export class LeadTable implements INodeType {
           };
 
           const response = await this.helpers.request(options);
-          this.logger.debug('🔎 Raw /customer/all response', response);
+          this.logger.debug('Raw /customer/all response', response);
 
           // Deklariere customers hier
           let customers: any[] = [];
@@ -657,7 +656,7 @@ export class LeadTable implements INodeType {
           }
 
           if (customers.length === 0) {
-            this.logger.error('⚠️ Keine customers gefunden!', response);
+            this.logger.error('Keine customers gefunden!', response);
           }
 
           return customers.map((customer: any) => ({
@@ -703,7 +702,7 @@ export class LeadTable implements INodeType {
           };
 
           const response = await this.helpers.request(options);
-          this.logger.debug('🔎 Raw /campaign/all response', response);
+          this.logger.debug('Raw /campaign/all response', response);
 
           // Deklariere campaigns hier
           let campaigns: any[] = [];
@@ -719,7 +718,7 @@ export class LeadTable implements INodeType {
           }
 
           if (campaigns.length === 0) {
-            this.logger.error('⚠️ Keine campaigns gefunden!', response);
+            this.logger.error('Keine campaigns gefunden!', response);
             return [
               {
                 name: 'No campaigns found for this customer',
@@ -1031,7 +1030,7 @@ async function makeApiRequest(
   try {
     const response = await this.helpers.request(options);
 
-    this.logger.debug('✅ LeadTable API Raw Response', {
+    this.logger.debug('LeadTable API Raw Response', {
       url,
       raw: response, // vollständige Response loggen
     });
