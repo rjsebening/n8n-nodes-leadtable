@@ -3,8 +3,11 @@ import {
   INodeExecutionData,
   INodeType,
   INodeTypeDescription,
+  ILoadOptionsFunctions,
+  INodePropertyOptions,
   NodeOperationError,
   NodeConnectionType,
+  NodeApiError,
 } from 'n8n-workflow';
 
 export class LeadTable implements INodeType {
@@ -378,27 +381,14 @@ export class LeadTable implements INodeType {
         description: 'Email address to search for',
       },
 
-      // Campaign ID for lead listing
+      // ===== FIXED: CUSTOMER SELECTION FOR CAMPAIGN OPERATIONS =====
       {
-        displayName: 'Campaign ID',
-        name: 'campaignId',
-        type: 'string',
-        required: true,
-        displayOptions: {
-          show: {
-            resource: ['lead'],
-            operation: ['getByCampaign'],
-          },
-        },
-        default: '',
-        description: 'The ID of the campaign to get leads from',
-      },
-
-      // Customer ID for campaigns
-      {
-        displayName: 'Customer ID',
+        displayName: 'Customer',
         name: 'customerId',
-        type: 'string',
+        type: 'options',
+        typeOptions: {
+          loadOptionsMethod: 'getCustomers',
+        },
         required: true,
         displayOptions: {
           show: {
@@ -407,7 +397,45 @@ export class LeadTable implements INodeType {
           },
         },
         default: '',
-        description: 'The ID of the customer to get campaigns for',
+        description: 'Select the customer to get campaigns for',
+      },
+
+      // ===== WORKING SOLUTION: 2-STEP APPROACH FOR LEADS =====
+      {
+        displayName: 'Customer',
+        name: 'customerForLeads',
+        type: 'options',
+        typeOptions: {
+          loadOptionsMethod: 'getCustomers',
+        },
+        required: true,
+        displayOptions: {
+          show: {
+            resource: ['lead'],
+            operation: ['getByCampaign'],
+          },
+        },
+        default: '',
+        description: '1️⃣ First select a customer',
+      },
+
+      {
+        displayName: 'Campaign',
+        name: 'campaignId',
+        type: 'options',
+        typeOptions: {
+          loadOptionsMethod: 'getCampaignsForCustomer',
+          loadOptionsDependsOn: ['customerForLeads'],
+        },
+        required: true,
+        displayOptions: {
+          show: {
+            resource: ['lead'],
+            operation: ['getByCampaign'],
+          },
+        },
+        default: '',
+        description: '2️⃣ Then select a campaign for the customer above',
       },
 
       // Pagination fields
@@ -575,6 +603,150 @@ export class LeadTable implements INodeType {
     ],
   };
 
+  methods = {
+    loadOptions: {
+      // Customer loading mit Response-Log
+      async getCustomers(
+        this: ILoadOptionsFunctions,
+      ): Promise<INodePropertyOptions[]> {
+        try {
+          const credentials = await this.getCredentials('leadTableApi');
+
+          const options: any = {
+            method: 'GET',
+            url: `${credentials.baseUrl || 'https://api.lead-table.com/api/v3/external'}/customer/all`,
+            headers: {
+              'x-api-key': String(credentials.apiKey).trim(),
+              email: String(credentials.email).trim(),
+              'Content-Type': 'application/json',
+            },
+            json: true,
+          };
+
+          const response = await this.helpers.request(options);
+          this.logger.debug('🔎 Raw /customer/all response', response);
+
+          // Deklariere customers hier
+          let customers: any[] = [];
+
+          // Fall 1: Array mit customers
+          if (Array.isArray(response) && response[0]?.customers) {
+            customers = response[0].customers;
+          }
+
+          // Fall 2: Objekt mit customers
+          else if (response?.customers && Array.isArray(response.customers)) {
+            customers = response.customers;
+          }
+
+          if (customers.length === 0) {
+            this.logger.error('⚠️ Keine customers gefunden!', response);
+          }
+
+          return customers.map((customer: any) => ({
+            name: customer.name ?? `Customer ${customer._id}`,
+            value: customer._id,
+            description: customer.createdAt
+              ? `Created: ${new Date(customer.createdAt).toLocaleDateString()}`
+              : undefined,
+          }));
+        } catch (error: any) {
+          const errorMessage =
+            error?.response?.body?.message || error.message || 'Unknown error';
+          throw new NodeOperationError(
+            this.getNode(),
+            `Failed to load customers: ${errorMessage}`,
+          );
+        }
+      },
+
+      // FIXED: Campaign loading mit loadOptionsDependsOn
+      async getCampaignsForCustomer(
+        this: ILoadOptionsFunctions,
+      ): Promise<INodePropertyOptions[]> {
+        try {
+          // loadOptionsDependsOn sorgt dafür, dass customerId/ customerForLeads hier verfügbar ist
+          const customerId = this.getCurrentNodeParameter(
+            'customerForLeads',
+          ) as string;
+
+          if (!customerId) {
+            return [
+              {
+                name: 'Please select a customer first',
+                value: 'no-customer-selected',
+                description:
+                  'You must select a customer before campaigns can be loaded',
+              },
+            ];
+          }
+
+          const credentials = await this.getCredentials('leadTableApi');
+
+          const options: any = {
+            method: 'GET',
+            url: `${credentials.baseUrl || 'https://api.lead-table.com/api/v3/external'}/campaign/all/${customerId}`,
+            headers: {
+              'x-api-key': String(credentials.apiKey).trim(),
+              email: String(credentials.email).trim(),
+              'Content-Type': 'application/json',
+            },
+            json: true,
+          };
+
+          const response = await this.helpers.request(options);
+          this.logger.debug('🔎 Raw /campaign/all response', response);
+
+          // Deklariere campaigns hier
+          let campaigns: any[] = [];
+
+          // Fall 1: Array mit campaigns
+          if (Array.isArray(response) && response[0]?.campaigns) {
+            campaigns = response[0].campaigns;
+          }
+
+          // Fall 2: Objekt mit campaigns
+          else if (response?.campaigns && Array.isArray(response.campaigns)) {
+            campaigns = response.campaigns;
+          }
+
+          if (campaigns.length === 0) {
+            this.logger.error('⚠️ Keine campaigns gefunden!', response);
+            return [
+              {
+                name: 'No campaigns found for this customer',
+                value: 'no-campaigns-found',
+                description: 'This customer has no campaigns available',
+              },
+            ];
+          }
+
+          return campaigns.map((campaign: any) => ({
+            name:
+              campaign.name ??
+              campaign.occupation ??
+              `Campaign ${campaign._id}`,
+            value: campaign._id,
+            description: campaign.leadsCount
+              ? `Leads: ${campaign.leadsCount}`
+              : undefined,
+          }));
+        } catch (error: any) {
+          const errorMessage =
+            error?.response?.body?.message || error.message || 'Unknown error';
+          return [
+            {
+              name: `Error loading campaigns: ${errorMessage}`,
+              value: 'error-loading',
+              description:
+                'Please check your customer selection and credentials',
+            },
+          ];
+        }
+      },
+    },
+  };
+
   async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
     const items = this.getInputData();
     const returnData: INodeExecutionData[] = [];
@@ -713,6 +885,19 @@ export class LeadTable implements INodeType {
             );
           } else if (operation === 'getByCampaign') {
             const campaignId = this.getNodeParameter('campaignId', i) as string;
+
+            // Skip execution if placeholder values are selected
+            if (
+              campaignId === 'no-customer-selected' ||
+              campaignId === 'no-campaigns-found' ||
+              campaignId === 'error-loading'
+            ) {
+              throw new NodeOperationError(
+                this.getNode(),
+                'Please select a valid campaign. Make sure to select a customer first, then choose a campaign from the dropdown.',
+              );
+            }
+
             const page = this.getNodeParameter('page', i) as number;
             const limit = this.getNodeParameter('limit', i) as number;
 
@@ -896,9 +1081,11 @@ async function makeApiRequest(
   baseUrl: string,
   isFormData: boolean = false,
 ) {
+  const url = `${baseUrl}${endpoint}`;
+
   this.logger.debug('=== LeadTable API Request ===', {
     method,
-    url: `${baseUrl}${endpoint}`,
+    url,
     apiKeyPreview: apiKey.substring(0, 10) + '...',
     email,
     query: qs,
@@ -906,7 +1093,7 @@ async function makeApiRequest(
 
   const options: any = {
     method,
-    url: `${baseUrl}${endpoint}`,
+    url,
     headers: {
       'x-api-key': String(apiKey).trim(),
       email: String(email).trim(),
@@ -914,7 +1101,6 @@ async function makeApiRequest(
     },
     qs,
     json: true,
-    resolveWithFullResponse: true,
   };
 
   if (isFormData) {
@@ -925,31 +1111,31 @@ async function makeApiRequest(
     options.headers['content-type'] = 'application/json';
   }
 
-  this.logger.debug('Request headers', options.headers);
-
   try {
     const response = await this.helpers.request(options);
-    this.logger.debug('Response status', { status: response.statusCode });
-    this.logger.debug('Response body preview', {
-      body: JSON.stringify(response.body).substring(0, 200),
+
+    this.logger.debug('✅ LeadTable API Raw Response', {
+      url,
+      raw: response, // vollständige Response loggen
     });
-    return response.body;
+
+    return response; // <-- Body direkt zurückgeben
   } catch (error: any) {
-    this.logger.error('=== LeadTable API Error ===', {
+    this.logger.error('LeadTable API Error', {
+      url,
       statusCode: error.statusCode,
       message: error.message,
       body: error.response?.body,
-      headers: error.response?.headers,
     });
 
-    let errorMessage = `LeadTable API request failed: ${error.statusCode}`;
+    let errorMessage = `LeadTable API request failed: ${error.statusCode || 'UNKNOWN'}`;
 
     if (error.statusCode === 403) {
       errorMessage +=
         ' - Authentication failed. Please check your API Key and Email address.';
     } else if (error.response?.body?.error) {
       errorMessage += ` - "${error.response.body.error}"`;
-    } else {
+    } else if (error.message) {
       errorMessage += ` - "${error.message}"`;
     }
 
