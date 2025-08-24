@@ -1,17 +1,29 @@
-# Source files (nur dist/ soll published werden)
+# ────────────────
+# Source & Build
+# ────────────────
 *.ts
 !*.d.ts
 tsconfig.json
 src/
+# Wir publishen nur den kompilierten JS-Code im dist/
+# (dist/ NICHT ignorieren!)
 
-# Development files
+# ────────────────
+# Development
+# ────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+lint-staged.config.js
+.eslintrc.js
+.prettierrc
+.prettierignore
 
+# ────────────────
 # Testing
+# ────────────────
 test/
 tests/
 __tests__/
@@ -22,12 +34,18 @@ __tests__/
 coverage/
 .nyc_output
 
-# Documentation (nur README.md wird benötigt)
+# ────────────────
+# Documentation
+# (nur README.md bleibt im Package)
+# ────────────────
 README.de.md
 docs/
 examples/
+CREDENTIALS.md
 
-# Build tools
+# ────────────────
+# CI & Build Tools
+# ────────────────
 .github/
 .gitlab-ci.yml
 .travis.yml
@@ -35,26 +53,34 @@ examples/
 webpack.config.js
 rollup.config.js
 
-# Environment files
+# ────────────────
+# Env & Secrets
+# ────────────────
 .env
 .env.*
 .env.local
 .env.*.local
 
+# ────────────────
 # Logs
+# ────────────────
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-# Runtime data
+# ────────────────
+# Runtime Data
+# ────────────────
 pids
 *.pid
 *.seed
 *.pid.lock
 
-# OS generated files
+# ────────────────
+# OS generated
+# ────────────────
 .DS_Store
 .DS_Store?
 ._*
@@ -63,20 +89,25 @@ pids
 ehthumbs.db
 Thumbs.db
 
+# ────────────────
 # Temporary folders
+# ────────────────
 tmp/
 temp/
 
+# ────────────────
 # Git files
+# ────────────────
 .git/
 .gitignore
 
-# Node modules (falls irrtümlich vorhanden)
+# ────────────────
+# Node modules
+# ────────────────
 node_modules/
 
-# Development dependencies
-devDependencies/
-
-# Misc development files
+# ────────────────
+# Other dev artifacts
+# ────────────────
 *.tgz
 .npmrc

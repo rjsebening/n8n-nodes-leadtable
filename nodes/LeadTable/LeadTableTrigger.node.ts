@@ -7,6 +7,7 @@ import {
   IWebhookResponseData,
   NodeOperationError,
   NodeConnectionType,
+  ILoadOptionsFunctions,
 } from 'n8n-workflow';
 
 export class LeadTableTrigger implements INodeType {
@@ -89,9 +90,12 @@ export class LeadTableTrigger implements INodeType {
         required: true,
       },
       {
-        displayName: 'Customer ID',
+        displayName: 'Customer',
         name: 'customerId',
-        type: 'string',
+        type: 'options',
+        typeOptions: {
+          loadOptionsMethod: 'getCustomers',
+        },
         displayOptions: {
           show: {
             webhookLevel: ['customer', 'table'],
@@ -103,9 +107,13 @@ export class LeadTableTrigger implements INodeType {
         placeholder: 'e.g., 60d0fe4f5311236168a109ca',
       },
       {
-        displayName: 'Campaign/Table ID',
+        displayName: 'Campaign',
         name: 'campaignId',
-        type: 'string',
+        type: 'options',
+        typeOptions: {
+          loadOptionsMethod: 'getCampaignsForCustomer',
+          loadOptionsDependsOn: ['customerId'],
+        },
         displayOptions: {
           show: {
             webhookLevel: ['table'],
@@ -113,7 +121,7 @@ export class LeadTableTrigger implements INodeType {
         },
         default: '',
         required: true,
-        description: 'The ID of the campaign/table to monitor',
+        description: 'The ID of the campaign to monitor',
         placeholder: 'e.g., 687e1a6b24a08290d974f2f2',
       },
       {
@@ -136,6 +144,69 @@ export class LeadTableTrigger implements INodeType {
           'ℹ️ To find IDs: Use LeadTable node with "Customer > Get All", then "Campaign > Get All".',
       },
     ],
+  };
+
+  methods = {
+    loadOptions: {
+      async getCustomers(this: ILoadOptionsFunctions) {
+        const credentials = await this.getCredentials('leadTableApi');
+
+        const response = await this.helpers.request({
+          method: 'GET',
+          url: `${credentials.baseUrl || 'https://api.lead-table.com/api/v3/external'}/customer/all`,
+          headers: {
+            'x-api-key': String(credentials.apiKey).trim(),
+            email: String(credentials.email).trim(),
+            'Content-Type': 'application/json',
+          },
+          json: true,
+        });
+
+        let customers: any[] = [];
+        if (Array.isArray(response) && response[0]?.customers) {
+          customers = response[0].customers;
+        } else if (response?.customers && Array.isArray(response.customers)) {
+          customers = response.customers;
+        }
+
+        return customers.map((c: any) => ({
+          name: c.name,
+          value: c._id,
+        }));
+      },
+
+      async getCampaignsForCustomer(this: ILoadOptionsFunctions) {
+        const customerId = this.getNodeParameter('customerId', '') as string;
+        if (!customerId) {
+          return [{ name: 'Select a customer first', value: '' }];
+        }
+
+        const credentials = await this.getCredentials('leadTableApi');
+
+        const response = await this.helpers.request({
+          method: 'GET',
+          url: `${credentials.baseUrl || 'https://api.lead-table.com/api/v3/external'}/campaign/all/${customerId}`,
+          headers: {
+            'x-api-key': String(credentials.apiKey).trim(),
+            email: String(credentials.email).trim(),
+            'Content-Type': 'application/json',
+          },
+          json: true,
+        });
+
+        let campaigns: any[] = [];
+        if (Array.isArray(response) && response[0]?.campaigns) {
+          campaigns = response[0].campaigns;
+        } else if (response?.campaigns && Array.isArray(response.campaigns)) {
+          campaigns = response.campaigns;
+        }
+
+        return campaigns.map((c: any) => ({
+          name: c.occupation ?? c.name ?? `Campaign ${c._id}`,
+          value: c._id,
+        }));
+      },
+    },
   };
 
   webhookMethods = {

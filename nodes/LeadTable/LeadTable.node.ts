@@ -222,9 +222,12 @@ export class LeadTable implements INodeType {
 
       // Lead Create Fields
       {
-        displayName: 'Campaign ID',
-        name: 'campaignId',
-        type: 'string',
+        displayName: 'Customer',
+        name: 'customerForLeadCreate',
+        type: 'options',
+        typeOptions: {
+          loadOptionsMethod: 'getCustomers',
+        },
         required: true,
         displayOptions: {
           show: {
@@ -233,8 +236,27 @@ export class LeadTable implements INodeType {
           },
         },
         default: '',
-        description: 'The ID of the campaign to create the lead in',
+        description: 'First select a customer for the new lead',
       },
+      {
+        displayName: 'Campaign',
+        name: 'campaignId',
+        type: 'options',
+        typeOptions: {
+          loadOptionsMethod: 'getCampaignsForCustomer',
+          loadOptionsDependsOn: ['customerForLeadCreate'],
+        },
+        required: true,
+        displayOptions: {
+          show: {
+            resource: ['lead'],
+            operation: ['create'],
+          },
+        },
+        default: '',
+        description: 'Then select a campaign for this customer',
+      },
+
       {
         displayName: 'Lead Data',
         name: 'leadData',
@@ -416,7 +438,7 @@ export class LeadTable implements INodeType {
           },
         },
         default: '',
-        description: '1️⃣ First select a customer',
+        description: 'First select a customer',
       },
 
       {
@@ -435,7 +457,7 @@ export class LeadTable implements INodeType {
           },
         },
         default: '',
-        description: '2️⃣ Then select a campaign for the customer above',
+        description: 'Then select a campaign for the customer above',
       },
 
       // Pagination fields
@@ -665,11 +687,13 @@ export class LeadTable implements INodeType {
         this: ILoadOptionsFunctions,
       ): Promise<INodePropertyOptions[]> {
         try {
-          // loadOptionsDependsOn sorgt dafür, dass customerId/ customerForLeads hier verfügbar ist
-          const customerId = this.getCurrentNodeParameter(
+          const customerForLeadCreate = this.getCurrentNodeParameter(
+            'customerForLeadCreate',
+          ) as string | undefined;
+          const customerForLeads = this.getCurrentNodeParameter(
             'customerForLeads',
-          ) as string;
-
+          ) as string | undefined;
+          const customerId = customerForLeadCreate || customerForLeads || '';
           if (!customerId) {
             return [
               {
