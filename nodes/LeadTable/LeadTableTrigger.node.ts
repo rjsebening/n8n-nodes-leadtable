@@ -22,6 +22,8 @@ export class LeadTableTrigger implements INodeType {
       'Trigger workflows on LeadTable events - Integration with LeadTable API (powered by agentur-systeme.de)',
     defaults: {
       name: 'LeadTable Trigger',
+      // @ts-expect-error -- required by n8n linter
+      description: 'LeadTable Trigger integration node',
     },
     inputs: [],
     outputs: [NodeConnectionType.Main],
@@ -89,7 +91,7 @@ export class LeadTableTrigger implements INodeType {
         required: true,
       },
       {
-        displayName: 'Customer',
+        displayName: 'Customer Name or ID',
         name: 'customerId',
         type: 'options',
         typeOptions: {
@@ -102,11 +104,11 @@ export class LeadTableTrigger implements INodeType {
         },
         default: '',
         required: true,
-        description: 'The ID of the customer',
+        description: 'The ID of the customer. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
         placeholder: 'e.g., 60d0fe4f5311236168a109ca',
       },
       {
-        displayName: 'Campaign',
+        displayName: 'Campaign Name or ID',
         name: 'campaignId',
         type: 'options',
         typeOptions: {
@@ -120,7 +122,7 @@ export class LeadTableTrigger implements INodeType {
         },
         default: '',
         required: true,
-        description: 'The ID of the campaign to monitor',
+        description: 'The ID of the campaign to monitor. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
         placeholder: 'e.g., 687e1a6b24a08290d974f2f2',
       },
       {
@@ -138,7 +140,7 @@ export class LeadTableTrigger implements INodeType {
         displayOptions: {
           show: {},
         },
-        description: 'ℹ️ To find IDs: Use LeadTable node with "Customer > Get All", then "Campaign > Get All".',
+        description: 'ℹ️ To find IDs: Use LeadTable node with "Customer > Get All", then "Campaign > Get All"',
       },
     ],
   };
@@ -175,7 +177,7 @@ export class LeadTableTrigger implements INodeType {
       async getCampaignsForCustomer(this: ILoadOptionsFunctions) {
         const customerId = this.getNodeParameter('customerId', '') as string;
         if (!customerId) {
-          return [{ name: 'Select a customer first', value: '' }];
+          return [{ name: 'Select a Customer First', value: '' }];
         }
 
         const credentials = await this.getCredentials('leadTableApi');

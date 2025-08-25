@@ -60,6 +60,34 @@ This n8n custom node enables full integration with LeadTable — a leading lead-
 
 ## 🔧 Configuration
 
+### Installation in n8n
+
+This node can be installed using the **Community Nodes** feature in n8n.
+
+1. Open your n8n instance
+2. Go to **Settings → Community Nodes → Install**
+3. Enter one of the following package names:
+
+#### Variant 1 – Scoped (personal scope)
+
+```
+
+@rjsebening/n8n-nodes-leadtable
+
+```
+
+#### Variant 2 – Unscoped (default)
+
+```
+
+n8n-nodes-leadtable
+
+```
+
+Both packages contain the same code. The scoped version exists to avoid name conflicts with future official packages.
+
+4. Restart n8n → the node is available
+
 ### Set Up API Credentials
 
 1.  In n8n, go to **Credentials** → **Create New**

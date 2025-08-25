@@ -8,6 +8,7 @@ import {
   NodeOperationError,
   NodeConnectionType,
 } from 'n8n-workflow';
+import FormData from 'form-data';
 
 export class LeadTable implements INodeType {
   description: INodeTypeDescription = {
@@ -20,6 +21,8 @@ export class LeadTable implements INodeType {
     description: 'Integration with LeadTable API (powered by agentur-systeme.de)',
     defaults: {
       name: 'LeadTable',
+      // @ts-expect-error -- required by n8n linter
+      description: 'LeadTable integration node',
     },
     inputs: [NodeConnectionType.Main],
     outputs: [NodeConnectionType.Main],
@@ -36,26 +39,11 @@ export class LeadTable implements INodeType {
         type: 'options',
         noDataExpression: true,
         options: [
-          {
-            name: 'Lead',
-            value: 'lead',
-          },
-          {
-            name: 'Campaign',
-            value: 'campaign',
-          },
-          {
-            name: 'Customer',
-            value: 'customer',
-          },
-          {
-            name: 'Webhook',
-            value: 'webhook',
-          },
-          {
-            name: 'Auth',
-            value: 'auth',
-          },
+         { name: 'Auth', value: 'auth' },
+  { name: 'Campaign', value: 'campaign' },
+  { name: 'Customer', value: 'customer' },
+  { name: 'Lead', value: 'lead' },
+  { name: 'Webhook', value: 'webhook' },
         ],
         default: 'lead',
       },
@@ -73,6 +61,12 @@ export class LeadTable implements INodeType {
         },
         options: [
           {
+            name: 'Add File',
+            value: 'addFile',
+            description: 'Upload a file to a lead',
+            action: 'Add file to lead',
+          },
+          {
             name: 'Create',
             value: 'create',
             description: 'Create a new lead',
@@ -83,6 +77,19 @@ export class LeadTable implements INodeType {
             value: 'get',
             description: 'Get a lead by ID',
             action: 'Get a lead',
+          },
+          {
+            name: 'Get by Campaign',
+            value: 'getByCampaign',
+            description: 'Get all leads in a campaign',
+            action: 'Get leads by campaign',
+          },
+
+{
+            name: 'Search by Email',
+            value: 'searchByEmail',
+            description: 'Search leads by email',
+            action: 'Search leads by email',
           },
           {
             name: 'Update',
@@ -96,24 +103,9 @@ export class LeadTable implements INodeType {
             description: 'Update lead description',
             action: 'Update lead description',
           },
-          {
-            name: 'Search by Email',
-            value: 'searchByEmail',
-            description: 'Search leads by email',
-            action: 'Search leads by email',
-          },
-          {
-            name: 'Get by Campaign',
-            value: 'getByCampaign',
-            description: 'Get all leads in a campaign',
-            action: 'Get leads by campaign',
-          },
-          {
-            name: 'Add File',
-            value: 'addFile',
-            description: 'Upload a file to a lead',
-            action: 'Add file to lead',
-          },
+   
+          
+          
         ],
         default: 'create',
       },
@@ -131,10 +123,10 @@ export class LeadTable implements INodeType {
         },
         options: [
           {
-            name: 'Get All',
+            name: 'Get Many',
             value: 'getAll',
-            description: 'Get all campaigns for a customer',
-            action: 'Get all campaigns',
+            description: 'Get many campaigns for a customer',
+            action: 'Get many campaigns',
           },
         ],
         default: 'getAll',
@@ -153,10 +145,10 @@ export class LeadTable implements INodeType {
         },
         options: [
           {
-            name: 'Get All',
+            name: 'Get Many',
             value: 'getAll',
-            description: 'Get all customers',
-            action: 'Get all customers',
+            description: 'Get many customers',
+            action: 'Get many customers',
           },
         ],
         default: 'getAll',
@@ -220,7 +212,7 @@ export class LeadTable implements INodeType {
 
       // Lead Create Fields
       {
-        displayName: 'Customer',
+        displayName: 'Customer Name or ID',
         name: 'customerForLeadCreate',
         type: 'options',
         typeOptions: {
@@ -234,10 +226,10 @@ export class LeadTable implements INodeType {
           },
         },
         default: '',
-        description: 'First select a customer for the new lead',
+        description: 'First select a customer for the new lead. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
       },
       {
-        displayName: 'Campaign',
+        displayName: 'Campaign Name or ID',
         name: 'campaignId',
         type: 'options',
         typeOptions: {
@@ -252,7 +244,7 @@ export class LeadTable implements INodeType {
           },
         },
         default: '',
-        description: 'Then select a campaign for this customer',
+        description: 'Then select a campaign for this customer. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
       },
 
       {
@@ -389,6 +381,7 @@ export class LeadTable implements INodeType {
         displayName: 'Email',
         name: 'email',
         type: 'string',
+								placeholder: 'name@email.com',
         required: true,
         displayOptions: {
           show: {
@@ -402,7 +395,7 @@ export class LeadTable implements INodeType {
 
       // ===== FIXED: CUSTOMER SELECTION FOR CAMPAIGN OPERATIONS =====
       {
-        displayName: 'Customer',
+        displayName: 'Customer Name or ID',
         name: 'customerId',
         type: 'options',
         typeOptions: {
@@ -416,12 +409,12 @@ export class LeadTable implements INodeType {
           },
         },
         default: '',
-        description: 'Select the customer to get campaigns for',
+        description: 'Select the customer to get campaigns for. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
       },
 
       // ===== WORKING SOLUTION: 2-STEP APPROACH FOR LEADS =====
       {
-        displayName: 'Customer',
+        displayName: 'Customer Name or ID',
         name: 'customerForLeads',
         type: 'options',
         typeOptions: {
@@ -435,11 +428,11 @@ export class LeadTable implements INodeType {
           },
         },
         default: '',
-        description: 'First select a customer',
+        description: 'First select a customer. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
       },
 
       {
-        displayName: 'Campaign',
+        displayName: 'Campaign Name or ID',
         name: 'campaignId',
         type: 'options',
         typeOptions: {
@@ -454,7 +447,7 @@ export class LeadTable implements INodeType {
           },
         },
         default: '',
-        description: 'Then select a campaign for the customer above',
+        description: 'Then select a campaign for the customer above. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
       },
 
       // Pagination fields
@@ -475,6 +468,9 @@ export class LeadTable implements INodeType {
         displayName: 'Limit',
         name: 'limit',
         type: 'number',
+								typeOptions: {
+									minValue: 1,
+								},
         displayOptions: {
           show: {
             resource: ['lead', 'customer'],
@@ -482,7 +478,7 @@ export class LeadTable implements INodeType {
           },
         },
         default: 50,
-        description: 'Number of items per page',
+        description: 'Max number of results to return',
       },
 
       // File upload fields
@@ -681,7 +677,7 @@ export class LeadTable implements INodeType {
           if (!customerId) {
             return [
               {
-                name: 'Please select a customer first',
+                name: 'Please Select a Customer First',
                 value: 'no-customer-selected',
                 description: 'You must select a customer before campaigns can be loaded',
               },
@@ -721,7 +717,7 @@ export class LeadTable implements INodeType {
             this.logger.error('Keine campaigns gefunden!', response);
             return [
               {
-                name: 'No campaigns found for this customer',
+                name: 'No Campaigns Found for This Customer',
                 value: 'no-campaigns-found',
                 description: 'This customer has no campaigns available',
               },
@@ -848,6 +844,7 @@ export class LeadTable implements INodeType {
               throw new NodeOperationError(
                 this.getNode(),
                 'Please select a valid campaign. Make sure to select a customer first, then choose a campaign from the dropdown.',
+                { itemIndex: i },
               );
             }
 
@@ -867,27 +864,32 @@ export class LeadTable implements INodeType {
               baseUrl,
             );
           } else if (operation === 'addFile') {
-            const leadId = this.getNodeParameter('leadId', i) as string;
-            const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i) as string;
+  const leadId = this.getNodeParameter('leadId', i) as string;
+  const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i) as string;
 
-            const binaryData = this.helpers.assertBinaryData(i, binaryPropertyName);
+  const buffer = await this.helpers.getBinaryDataBuffer(i, binaryPropertyName);
+  const binaryData = this.helpers.assertBinaryData(i, binaryPropertyName);
 
-            const formData = new FormData();
-            formData.append('file', binaryData.data, binaryData.fileName);
-            formData.append('id', leadId);
+  const form = new FormData();
+  form.append('file', buffer, {
+    filename: binaryData.fileName || 'upload.bin',
+    contentType: binaryData.mimeType || 'application/octet-stream',
+  });
+  form.append('id', leadId);
 
-            responseData = await makeApiRequest.call(
-              this,
-              'POST',
-              '/addFile',
-              {},
-              formData,
-              apiKey,
-              email,
-              baseUrl,
-              true,
-            );
-          }
+  responseData = await makeApiRequest.call(
+    this,
+    'POST',
+    '/addFile',
+    {},          // qs
+    form,        // body
+    apiKey,
+    email,
+    baseUrl,
+    true,        
+  );
+}
+
         } else if (resource === 'campaign') {
           if (operation === 'getAll') {
             const customerId = this.getNodeParameter('customerId', i) as string;

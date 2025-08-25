@@ -63,6 +63,37 @@ Diese n8n Custom Node ermöglicht die vollständige Integration mit LeadTable - 
 - n8n Version 1.0.0 oder höher
 - Aktiver LeadTable Account mit gültigem API-Schlüssel
 
+### Installation in n8n
+
+Diese Node ist über die **Community Nodes**-Funktion in n8n installierbar.
+
+1. Öffne deine n8n-Instanz
+2. Gehe zu **Settings → Community Nodes → Install**
+3. Gib einen der folgenden Paketnamen ein:
+
+
+#### Variante1 – Scoped (persönliches Scope)
+
+
+```
+
+@rjsebening/n8n-nodes-leadtable
+
+```
+
+#### Variante 2 – Unscoped (Standard)
+
+
+```
+
+n8n-nodes-leadtable
+
+```
+
+Beide Pakete enthalten denselben Code. Die scoped-Version existiert, damit keine Namenskonflikte mit zukünftigen offiziellen Paketen auftreten.
+
+4. n8n neu starten → die Node ist verfügbar
+
 ## 🔧 Konfiguration
 
 ### API-Credentials einrichten

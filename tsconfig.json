@@ -3,21 +3,13 @@
     "target": "ES2019",
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "lib": ["ES2019"],
     "outDir": "./dist",
-    "rootDir": "./",
     "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "noImplicitReturns": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "sourceMap": false,
-    "declaration": false
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
   },
-  "include": ["nodes/**/*", "credentials/**/*", "index.ts"],
+  "include": ["nodes/**/*", "nodes/**/*.json", "credentials/**/*", "index.ts", "package.json"],
   "exclude": ["dist", "node_modules", "**/*.test.ts"]
 }
