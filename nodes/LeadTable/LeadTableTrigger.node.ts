@@ -1,13 +1,12 @@
 import {
   IHookFunctions,
-  IWebhookFunctions,
-  IDataObject,
+  ILoadOptionsFunctions,
   INodeType,
   INodeTypeDescription,
+  IWebhookFunctions,
   IWebhookResponseData,
-  NodeOperationError,
   NodeConnectionType,
-  ILoadOptionsFunctions,
+  NodeOperationError,
 } from 'n8n-workflow';
 
 export class LeadTableTrigger implements INodeType {
@@ -47,24 +46,24 @@ export class LeadTableTrigger implements INodeType {
         name: 'event',
         type: 'options',
         options: [
-          {
-            name: 'New Lead Created',
-            value: 'newLead',
-            description: 'Triggered when a new lead is created',
-          },
-          {
-            name: 'Lead Status Changed',
-            value: 'changeStatus',
-            description: 'Triggered when a lead status changes',
-          },
-          {
-            name: 'Lead Updated',
-            value: 'updateLead',
-            description: 'Triggered when a lead is updated',
-          },
+          { name: 'Lead Deleted', value: 'deleteLead', description: 'Triggered when a lead is deleted' },
+          { name: 'Lead Status Changed', value: 'changeStatus', description: 'Triggered when a lead status changes' },
+          { name: 'Lead Updated', value: 'updateLead', description: 'Triggered when a lead is updated' },
+          { name: 'New Lead Created', value: 'newLead', description: 'Triggered when a new lead is created' },
+          { name: 'New Table Created', value: 'newTable', description: 'Triggered when a new table is created' },
         ],
         default: 'newLead',
         required: true,
+      },
+      {
+        displayName:
+          '⚠️ Note: Due to API limitations, this webhook will be deleted using a fallback method when deactivated.',
+        name: 'notice',
+        type: 'notice',
+        default: '',
+        displayOptions: {
+          show: { event: ['newTable'] },
+        },
       },
       {
         displayName: 'Webhook Level',
@@ -75,11 +74,6 @@ export class LeadTableTrigger implements INodeType {
             name: 'Agency (Global - All Campaigns)',
             value: 'agency',
             description: 'Receive events from all campaigns in your agency',
-          },
-          {
-            name: 'Customer (All Tables)',
-            value: 'customer',
-            description: 'Receive events from all tables of a specific customer',
           },
           {
             name: 'Table (Specific Campaign)',
@@ -99,12 +93,13 @@ export class LeadTableTrigger implements INodeType {
         },
         displayOptions: {
           show: {
-            webhookLevel: ['customer', 'table'],
+            webhookLevel: ['table'],
           },
         },
         default: '',
         required: true,
-        description: 'The ID of the customer. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+        description:
+          'The ID of the customer. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
         placeholder: 'e.g., 60d0fe4f5311236168a109ca',
       },
       {
@@ -122,7 +117,8 @@ export class LeadTableTrigger implements INodeType {
         },
         default: '',
         required: true,
-        description: 'The ID of the campaign to monitor. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+        description:
+          'The ID of the campaign to monitor. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
         placeholder: 'e.g., 687e1a6b24a08290d974f2f2',
       },
       {
@@ -133,14 +129,11 @@ export class LeadTableTrigger implements INodeType {
         description: 'Whether to automatically fetch full lead details when triggered',
       },
       {
-        displayName: 'Info',
-        name: 'info',
-        type: 'notice',
-        default: '',
-        displayOptions: {
-          show: {},
-        },
-        description: 'ℹ️ To find IDs: Use LeadTable node with "Customer > Get All", then "Campaign > Get All"',
+        displayName: 'Enable Debug Logging',
+        name: 'debug',
+        type: 'boolean',
+        default: false,
+        description: 'Whether log detailed request/response data (API key redacted). Useful for troubleshooting.',
       },
     ],
   };
@@ -208,187 +201,265 @@ export class LeadTableTrigger implements INodeType {
     },
   };
 
+  // Die webhook-Methoden für create/delete
   webhookMethods = {
     default: {
       async checkExists(this: IHookFunctions): Promise<boolean> {
-        return false;
+        try {
+          const webhookData = this.getWorkflowStaticData('node');
+          const debug = this.getNodeParameter('debug', false) as boolean;
+
+          if (debug) {
+            console.log('LeadTable Trigger: Checking if webhook exists...', {
+              webhookId: webhookData.webhookId,
+            });
+          }
+
+          // Wenn keine webhookId gespeichert ist, existiert der Webhook nicht
+          return Boolean(webhookData.webhookId);
+        } catch (error) {
+          const debug = this.getNodeParameter('debug', false) as boolean;
+          if (debug) {
+            console.error('LeadTable Trigger: Error checking webhook existence:', error);
+          }
+          return false;
+        }
       },
 
       async create(this: IHookFunctions): Promise<boolean> {
-        const webhookUrl = this.getNodeWebhookUrl('default') as string;
-        const event = this.getNodeParameter('event') as string;
-        const webhookLevel = this.getNodeParameter('webhookLevel') as string;
-        const customerId = this.getNodeParameter('customerId', '') as string;
-        const campaignId = this.getNodeParameter('campaignId', '') as string;
-
-        this.logger.debug('Creating webhook', {
-          url: webhookUrl,
-          event,
-          level: webhookLevel,
-          customerId,
-          campaignId,
-        });
-
-        const credentials = await this.getCredentials('leadTableApi');
-        const apiKey = credentials.apiKey as string;
-        const email = credentials.email as string;
-        const baseUrl = (credentials.baseUrl as string) || 'https://api.lead-table.com/api/v3/external';
-
         try {
-          const body: IDataObject = {
-            url: webhookUrl, // n8n generiert automatisch UUID
-            topic: event,
-            layer: webhookLevel,
-          };
+          const credentials = await this.getCredentials('leadTableApi');
+          const webhookUrl = this.getNodeWebhookUrl('default');
+          const baseUrl = credentials.baseUrl || 'https://api.lead-table.com/api/v3/external';
+          const debug = this.getNodeParameter('debug', false) as boolean;
 
-          // Set the correct ID based on webhook level
-          if (webhookLevel === 'agency') {
-            body.campaignID = email;
-          } else if (webhookLevel === 'customer') {
-            if (!customerId) {
-              throw new NodeOperationError(this.getNode(), 'Customer ID is required for customer-level webhooks');
-            }
-            body.campaignID = customerId;
-          } else if (webhookLevel === 'table') {
-            if (!campaignId) {
-              throw new NodeOperationError(this.getNode(), 'Campaign/Table ID is required for table-level webhooks');
-            }
-            body.campaignID = campaignId;
+          const event = this.getNodeParameter('event') as string;
+          const webhookLevel = this.getNodeParameter('webhookLevel') as string;
+
+          // Validierung: newTable nur auf agency level
+          if (event === 'newTable' && webhookLevel !== 'agency') {
+            throw new NodeOperationError(
+              this.getNode(),
+              'newTable events are only supported on Agency level. Please change Webhook Level to Agency.',
+            );
           }
 
-          this.logger.debug('Webhook registration body', body);
+          const customerId = this.getNodeParameter('customerId', '') as string;
+          const campaignId = this.getNodeParameter('campaignId', '') as string;
+
+          // Request Body je nach Layer erstellen
+          let requestBody: any = {
+            layer: webhookLevel,
+            topic: event,
+            url: webhookUrl,
+          };
+
+          // Layer-spezifische Parameter hinzufügen
+          if (webhookLevel === 'table') {
+            requestBody.customerID = customerId;
+            requestBody.campaignID = campaignId;
+          }
+
+          if (debug) {
+            console.log('LeadTable Trigger: Creating webhook with data:', {
+              layer: requestBody.layer,
+              topic: requestBody.topic,
+              customerID: requestBody.customerID || 'N/A',
+              campaignID: requestBody.campaignID || 'N/A',
+              url: '***WEBHOOK_URL***', // URL aus Sicherheitsgründen verstecken
+            });
+          }
 
           const response = await this.helpers.request({
             method: 'POST',
             url: `${baseUrl}/attachWebhook`,
             headers: {
-              'x-api-key': apiKey,
-              email,
-              accept: 'application/json',
-              'content-type': 'application/json',
+              'x-api-key': String(credentials.apiKey).trim(),
+              email: String(credentials.email).trim(),
+              'Content-Type': 'application/json',
             },
-            body,
+            body: requestBody,
             json: true,
-            resolveWithFullResponse: true,
           });
 
-          this.logger.debug('Webhook created successfully', response.body);
+          if (debug) {
+            console.log('LeadTable Trigger: Webhook created successfully:', {
+              externalHookId: response.externalHookId,
+              message: response.message,
+            });
+          }
+
+          // webhookId für späteres Löschen speichern
+          const webhookData = this.getWorkflowStaticData('node');
+          webhookData.webhookId = response.externalHookId;
+          webhookData.webhookUrl = webhookUrl;
+          webhookData.webhookParams = requestBody;
+
           return true;
-        } catch (error: any) {
-          let errorMessage = `Failed to create webhook: ${error.statusCode}`;
-          if (error.response?.body?.error) {
-            errorMessage += ` - "${error.response.body.error}"`;
-          } else {
-            errorMessage += ` - "${error.message}"`;
+        } catch (error) {
+          const debug = this.getNodeParameter('debug', false) as boolean;
+          if (debug) {
+            console.error('LeadTable Trigger: Error creating webhook:', error);
           }
-
-          if (error.statusCode === 404) {
-            errorMessage += '. The ID might not exist. Please verify using the LeadTable node.';
-          } else if (error.statusCode === 403) {
-            errorMessage += '. Please check your API credentials and the provided IDs.';
-          }
-
-          throw new NodeOperationError(this.getNode(), errorMessage);
+          throw new NodeOperationError(
+            this.getNode(),
+            `Failed to create LeadTable webhook: ${(error as Error).message}`,
+          );
         }
       },
 
       async delete(this: IHookFunctions): Promise<boolean> {
-        const webhookUrl = this.getNodeWebhookUrl('default') as string;
-        const event = this.getNodeParameter('event') as string;
-        const webhookLevel = this.getNodeParameter('webhookLevel') as string;
-        const customerId = this.getNodeParameter('customerId', '') as string;
-        const campaignId = this.getNodeParameter('campaignId', '') as string;
-
-        this.logger.debug('Deleting webhook', {
-          url: webhookUrl,
-          event,
-          level: webhookLevel,
-        });
-
-        const credentials = await this.getCredentials('leadTableApi');
-        const apiKey = credentials.apiKey as string;
-        const email = credentials.email as string;
-        const baseUrl = (credentials.baseUrl as string) || 'https://api.lead-table.com/api/v3/external';
-
         try {
-          let targetId = '';
-          if (webhookLevel === 'agency') {
-            targetId = email;
-          } else if (webhookLevel === 'customer') {
-            targetId = customerId;
-          } else if (webhookLevel === 'table') {
-            targetId = campaignId;
+          const credentials = await this.getCredentials('leadTableApi');
+          const webhookData = this.getWorkflowStaticData('node');
+          const baseUrl = credentials.baseUrl || 'https://api.lead-table.com/api/v3/external';
+          const debug = this.getNodeParameter('debug', false) as boolean;
+
+          if (!webhookData.webhookId || !webhookData.webhookUrl) {
+            if (debug) {
+              console.log('LeadTable Trigger: No webhook to delete (no stored webhook data)');
+            }
+            return true; // Kein Webhook zu löschen
           }
 
-          const qs: IDataObject = {
-            topic: event,
+          const originalEvent = this.getNodeParameter('event') as string;
+          const webhookLevel = this.getNodeParameter('webhookLevel') as string;
+          const customerId = this.getNodeParameter('customerId', '') as string;
+          const campaignId = this.getNodeParameter('campaignId', '') as string;
+
+          // Fallback für newTable topic (nicht unterstützt beim DELETE)
+          const topicToUse = originalEvent === 'newTable' ? 'updateLead' : originalEvent;
+
+          if (originalEvent === 'newTable' && debug) {
+            console.log(
+              'LeadTable Trigger: Using fallback topic "updateLead" for delete (newTable not supported in removeWebhook API)',
+            );
+          }
+
+          // externalHookId parsen um Entity-ID zu extrahieren
+          const externalHookId = webhookData.webhookId as string;
+          const entityId = externalHookId.split('_')[0]; // Erster Teil vor dem "_"
+
+          // Request Body für DELETE Request erstellen (URL-encoded)
+          const deleteParams: Record<string, string> = {
+            topic: topicToUse,
             layer: webhookLevel,
-            id: targetId,
-            url: webhookUrl,
+            id: entityId,
+            url: String(webhookData.webhookUrl),
           };
 
-          if (webhookLevel === 'table' && customerId) {
-            qs.relatedID = customerId;
+          // campaignID NICHT hinzufügen bei DELETE - API erlaubt es nicht
+          // if (webhookLevel === 'table') {
+          //   deleteParams.campaignID = campaignId;
+          // }
+
+          // URL-encoded Body erstellen
+          const urlEncodedBody = new URLSearchParams(deleteParams).toString();
+
+          if (debug) {
+            console.log('LeadTable Trigger: Deleting webhook with params:', {
+              originalTopic: originalEvent,
+              topicUsed: topicToUse,
+              layer: webhookLevel,
+              entityId: entityId,
+              campaignID: 'NOT_SENT (API does not allow campaignID in DELETE)',
+              url: '***WEBHOOK_URL***',
+              bodyParams: deleteParams,
+            });
           }
 
-          await this.helpers.request({
+          const response = await this.helpers.request({
             method: 'DELETE',
             url: `${baseUrl}/removeWebhook`,
             headers: {
-              'x-api-key': apiKey,
-              email,
-              accept: 'application/json',
+              'x-api-key': String(credentials.apiKey).trim(),
+              email: String(credentials.email).trim(),
+              'Content-Type': 'application/x-www-form-urlencoded',
             },
-            qs,
-            json: true,
+            body: urlEncodedBody,
+            json: false, // Wichtig: json: false für URL-encoded Body
           });
 
-          this.logger.debug('Webhook deleted successfully');
+          if (debug) {
+            console.log('LeadTable Trigger: Webhook deleted successfully:', response);
+          }
+
+          // Webhook-Daten aus dem Static Data löschen
+          delete webhookData.webhookId;
+          delete webhookData.webhookUrl;
+          delete webhookData.webhookParams;
+
           return true;
-        } catch (error: any) {
-          throw new NodeOperationError(this.getNode(), `Error deleting webhook: ${error.message}`);
+        } catch (error) {
+          const debug = this.getNodeParameter('debug', false) as boolean;
+          if (debug) {
+            console.error('LeadTable Trigger: Error deleting webhook:', error);
+          }
+          // Bei DELETE-Fehlern nicht werfen, da der Webhook möglicherweise bereits gelöscht wurde
+          return true;
         }
       },
     },
   };
 
   async webhook(this: IWebhookFunctions): Promise<IWebhookResponseData> {
-    const includeLead = this.getNodeParameter('includeLead') as boolean;
-    const body = this.getBodyData();
+    const req = this.getRequestObject();
+    const debug = this.getNodeParameter('debug', false) as boolean;
+    const includeLead = this.getNodeParameter('includeLead', true) as boolean;
 
-    this.logger.debug('Webhook received', body);
+    let webhookData = req.body;
 
-    let responseData: IDataObject = body as IDataObject;
+    if (debug) {
+      console.log('LeadTable Trigger: Received webhook data:', {
+        event: webhookData.event,
+        campaignID: webhookData.campaignID,
+        customerID: webhookData.customerID,
+        leadID: webhookData.leadID,
+        timestamp: webhookData.timestamp,
+        leadName: webhookData.leadName,
+        leadEmail: webhookData.leadEmail,
+      });
+    }
 
-    if (includeLead && body.leadID) {
+    // Vollständige Lead-Details abrufen, wenn gewünscht und leadID vorhanden
+    if (includeLead && webhookData.leadID) {
       try {
         const credentials = await this.getCredentials('leadTableApi');
-        const apiKey = credentials.apiKey as string;
-        const email = credentials.email as string;
-        const baseUrl = (credentials.baseUrl as string) || 'https://api.lead-table.com/api/v3/external';
+        const baseUrl = credentials.baseUrl || 'https://api.lead-table.com/api/v3/external';
 
-        const leadDetails = await this.helpers.request({
+        const leadResponse = await this.helpers.request({
           method: 'GET',
-          url: `${baseUrl}/lead/${body.leadID}`,
+          url: `${baseUrl}/lead/${webhookData.leadID}`,
           headers: {
-            'x-api-key': apiKey,
-            email,
-            accept: 'application/json',
+            'x-api-key': String(credentials.apiKey).trim(),
+            email: String(credentials.email).trim(),
+            'Content-Type': 'application/json',
           },
           json: true,
         });
 
-        responseData = {
-          ...body,
-          leadDetails,
-        };
-      } catch (error: any) {
-        throw new NodeOperationError(this.getNode(), `Error fetching lead details: ${error.message}`);
+        if (debug) {
+          console.log('LeadTable Trigger: Fetched lead details for leadID:', webhookData.leadID);
+        }
+
+        // Lead-Details zu den Webhook-Daten hinzufügen
+        webhookData.leadDetails = leadResponse;
+      } catch (error) {
+        if (debug) {
+          console.error('LeadTable Trigger: Error fetching lead details:', error);
+        }
+        // Fehler beim Abrufen der Lead-Details wird nicht als kritisch betrachtet
+        webhookData.leadDetailsError = (error as Error).message;
       }
     }
 
+    // Timestamp in lesbares Datum konvertieren
+    if (webhookData.timestamp) {
+      webhookData.timestampFormatted = new Date(webhookData.timestamp).toISOString();
+    }
+
     return {
-      workflowData: [this.helpers.returnJsonArray([responseData])],
+      workflowData: [this.helpers.returnJsonArray([webhookData])],
     };
   }
 }

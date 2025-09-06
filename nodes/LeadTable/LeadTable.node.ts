@@ -7,7 +7,9 @@ import {
   INodePropertyOptions,
   NodeOperationError,
   NodeConnectionType,
+  IDataObject,
 } from 'n8n-workflow';
+
 import FormData from 'form-data';
 
 export class LeadTable implements INodeType {
@@ -39,11 +41,12 @@ export class LeadTable implements INodeType {
         type: 'options',
         noDataExpression: true,
         options: [
-         { name: 'Auth', value: 'auth' },
-  { name: 'Campaign', value: 'campaign' },
-  { name: 'Customer', value: 'customer' },
-  { name: 'Lead', value: 'lead' },
-  { name: 'Webhook', value: 'webhook' },
+          { name: 'Auth', value: 'auth' },
+          { name: 'Campaign', value: 'campaign' },
+          { name: 'Customer', value: 'customer' },
+          { name: 'Lead', value: 'lead' },
+          { name: 'Table', value: 'table' },
+          { name: 'Webhook', value: 'webhook' },
         ],
         default: 'lead',
       },
@@ -85,7 +88,7 @@ export class LeadTable implements INodeType {
             action: 'Get leads by campaign',
           },
 
-{
+          {
             name: 'Search by Email',
             value: 'searchByEmail',
             description: 'Search leads by email',
@@ -103,9 +106,6 @@ export class LeadTable implements INodeType {
             description: 'Update lead description',
             action: 'Update lead description',
           },
-   
-          
-          
         ],
         default: 'create',
       },
@@ -132,6 +132,27 @@ export class LeadTable implements INodeType {
         default: 'getAll',
       },
 
+      {
+        displayName: 'Operation',
+        name: 'operation',
+        type: 'options',
+        noDataExpression: true,
+        displayOptions: {
+          show: {
+            resource: ['table'],
+          },
+        },
+        options: [
+          {
+            name: 'Create Table',
+            value: 'createTable',
+            description: 'Create a new table (campaign) for a customer',
+            action: 'Create table',
+          },
+        ],
+        default: 'createTable',
+      },
+
       // Customer Operations
       {
         displayName: 'Operation',
@@ -150,8 +171,42 @@ export class LeadTable implements INodeType {
             description: 'Get many customers',
             action: 'Get many customers',
           },
+          {
+            name: 'Create',
+            value: 'create',
+            description: 'Create a new customer',
+            action: 'Create a customer',
+          },
         ],
         default: 'getAll',
+      },
+
+      {
+        displayName: 'Name',
+        name: 'name',
+        type: 'string',
+        required: true,
+        displayOptions: {
+          show: {
+            resource: ['customer'],
+            operation: ['create'],
+          },
+        },
+        default: '',
+        description: 'The name of the customer (e.g. "Acme Corporation")',
+      },
+      {
+        displayName: 'Description',
+        name: 'description',
+        type: 'string',
+        displayOptions: {
+          show: {
+            resource: ['customer'],
+            operation: ['create'],
+          },
+        },
+        default: '',
+        description: 'Optional description of the customer',
       },
 
       // Webhook Operations
@@ -226,7 +281,8 @@ export class LeadTable implements INodeType {
           },
         },
         default: '',
-        description: 'First select a customer for the new lead. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+        description:
+          'First select a customer for the new lead. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
       },
       {
         displayName: 'Campaign Name or ID',
@@ -244,7 +300,8 @@ export class LeadTable implements INodeType {
           },
         },
         default: '',
-        description: 'Then select a campaign for this customer. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+        description:
+          'Then select a campaign for this customer. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
       },
 
       {
@@ -381,7 +438,7 @@ export class LeadTable implements INodeType {
         displayName: 'Email',
         name: 'email',
         type: 'string',
-								placeholder: 'name@email.com',
+        placeholder: 'name@email.com',
         required: true,
         displayOptions: {
           show: {
@@ -409,7 +466,8 @@ export class LeadTable implements INodeType {
           },
         },
         default: '',
-        description: 'Select the customer to get campaigns for. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+        description:
+          'Select the customer to get campaigns for. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
       },
 
       // ===== WORKING SOLUTION: 2-STEP APPROACH FOR LEADS =====
@@ -423,12 +481,13 @@ export class LeadTable implements INodeType {
         required: true,
         displayOptions: {
           show: {
-            resource: ['lead'],
-            operation: ['getByCampaign'],
+            resource: ['lead', 'webhook'],
+            operation: ['getByCampaign', 'poll'],
           },
         },
         default: '',
-        description: 'First select a customer. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+        description:
+          'First select a customer. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
       },
 
       {
@@ -442,12 +501,13 @@ export class LeadTable implements INodeType {
         required: true,
         displayOptions: {
           show: {
-            resource: ['lead'],
-            operation: ['getByCampaign'],
+            resource: ['lead', 'webhook'],
+            operation: ['getByCampaign', 'poll'],
           },
         },
         default: '',
-        description: 'Then select a campaign for the customer above. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+        description:
+          'Then select a campaign for the customer above. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
       },
 
       // Pagination fields
@@ -468,9 +528,9 @@ export class LeadTable implements INodeType {
         displayName: 'Limit',
         name: 'limit',
         type: 'number',
-								typeOptions: {
-									minValue: 1,
-								},
+        typeOptions: {
+          minValue: 1,
+        },
         displayOptions: {
           show: {
             resource: ['lead', 'customer'],
@@ -498,19 +558,45 @@ export class LeadTable implements INodeType {
       },
 
       // Webhook fields
+
       {
-        displayName: 'Campaign ID',
+        displayName: 'Customer Name or ID',
+        name: 'customerForLeads',
+        type: 'options',
+        typeOptions: {
+          loadOptionsMethod: 'getCustomers',
+        },
+
+        displayOptions: {
+          show: {
+            resource: ['webhook'],
+            operation: ['attach'],
+            layer: ['table'],
+          },
+        },
+        default: '',
+        description:
+          'First select a customer. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+      },
+      {
+        displayName: 'Campaign Name or ID',
         name: 'campaignId',
-        type: 'string',
+        type: 'options',
+        typeOptions: {
+          loadOptionsMethod: 'getCampaignsForCustomer',
+          loadOptionsDependsOn: ['customerForLeads'],
+        },
         required: true,
         displayOptions: {
           show: {
             resource: ['webhook'],
-            operation: ['attach', 'poll'],
+            operation: ['attach'],
+            layer: ['table'],
           },
         },
         default: '',
-        description: 'The ID of the campaign',
+        description:
+          'The ID of the campaign (required for table layer). Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
       },
       {
         displayName: 'Webhook URL',
@@ -527,7 +613,7 @@ export class LeadTable implements INodeType {
         description: 'The URL for the webhook',
       },
       {
-        displayName: 'Topic',
+        displayName: 'Topic Name or ID',
         name: 'topic',
         type: 'options',
         required: true,
@@ -537,26 +623,13 @@ export class LeadTable implements INodeType {
             operation: ['attach', 'remove', 'poll'],
           },
         },
-        options: [
-          {
-            name: 'New Lead',
-            value: 'newLead',
-          },
-          {
-            name: 'Change Status',
-            value: 'changeStatus',
-          },
-          {
-            name: 'Update Lead',
-            value: 'updateLead',
-          },
-          {
-            name: 'Delete Lead',
-            value: 'deleteLead',
-          },
-        ],
-        default: 'newLead',
-        description: 'The webhook topic',
+        typeOptions: {
+          loadOptionsMethod: 'getWebhookTopics',
+          loadOptionsDependsOn: ['layer', 'operation'],
+        },
+        default: '',
+        description:
+          'The webhook topic. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
       },
       {
         displayName: 'Layer',
@@ -573,21 +646,33 @@ export class LeadTable implements INodeType {
           {
             name: 'Agency',
             value: 'agency',
+            description: 'Attach webhook to agency level (all campaigns)',
           },
           {
             name: 'Table',
             value: 'table',
-          },
-          {
-            name: 'Campaign',
-            value: 'campaign',
+            description: 'Attach webhook to specific table/campaign',
           },
         ],
-        default: 'campaign',
+        default: 'table',
         description: 'The layer to attach the webhook to',
       },
       {
-        displayName: 'ID',
+        displayName: '⚠️ newTable events are only available on Agency level. Please change Layer to Agency.',
+        name: 'newTableNotice',
+        type: 'notice',
+        displayOptions: {
+          show: {
+            resource: ['webhook'],
+            operation: ['attach'],
+            topic: ['newTable'],
+            layer: ['table'],
+          },
+        },
+        default: '',
+      },
+      {
+        displayName: 'Agency ID',
         name: 'id',
         type: 'string',
         required: true,
@@ -595,15 +680,20 @@ export class LeadTable implements INodeType {
           show: {
             resource: ['webhook'],
             operation: ['remove'],
+            layer: ['agency'],
           },
         },
         default: '',
-        description: 'The ID of the related entity',
+        description: 'The ID of the agency',
       },
       {
-        displayName: 'Related ID',
+        displayName: 'Customer ID - Related Name or ID',
         name: 'relatedId',
-        type: 'string',
+        type: 'options',
+        typeOptions: {
+          loadOptionsMethod: 'getCustomers',
+        },
+        required: true,
         displayOptions: {
           show: {
             resource: ['webhook'],
@@ -612,13 +702,174 @@ export class LeadTable implements INodeType {
           },
         },
         default: '',
-        description: 'The related ID (required if layer is table)',
+        description:
+          'The customer ID or related ID (required if layer is table). Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+      },
+      {
+        displayName: 'Campaign ID - Table Name or ID',
+        name: 'id',
+        type: 'options',
+        typeOptions: {
+          loadOptionsMethod: 'getCampaignsForCustomer',
+          loadOptionsDependsOn: ['relatedId'],
+        },
+        required: true,
+        displayOptions: {
+          show: {
+            resource: ['webhook'],
+            operation: ['remove'],
+            layer: ['table'],
+          },
+        },
+        default: '',
+        description:
+          'The ID of the related entity. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+      },
+
+      {
+        displayName: 'Customer Name or ID',
+        name: 'customerID',
+        type: 'options',
+        typeOptions: {
+          loadOptionsMethod: 'getCustomers',
+        },
+        required: true,
+        default: '',
+        displayOptions: {
+          show: {
+            resource: ['table'],
+            operation: ['createTable'],
+          },
+        },
+        description:
+          'The ID of the customer for whom to create the table. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+      },
+      {
+        displayName: 'Occupation',
+        name: 'occupation',
+        type: 'string',
+        required: true,
+        default: '',
+        description: 'Name of the table/campaign (e.g. "Website Leads 2024")',
+        displayOptions: {
+          show: {
+            resource: ['table'],
+            operation: ['createTable'],
+          },
+        },
+      },
+      {
+        displayName: 'Additional Fields',
+        name: 'additionalFields',
+        type: 'collection',
+        default: {},
+        displayOptions: {
+          show: {
+            resource: ['table'],
+            operation: ['createTable'],
+          },
+        },
+        placeholder: 'Add Field',
+        options: [
+          {
+            displayName: 'Delete Leads',
+            name: 'deleteLeads',
+            type: 'boolean',
+            description: 'Whether delete lead functionality should be visible',
+            default: false,
+          },
+          {
+            displayName: 'Funnel Link',
+            name: 'funnelLink',
+            type: 'string',
+            placeholder: 'e.g. https://example.com/funnel',
+            default: '',
+            description: 'Optional funnel link for the campaign',
+          },
+          {
+            displayName: 'Override Values',
+            name: 'overrideValues',
+            type: 'json',
+            default: '[]',
+            description: 'Override values for manual lead creation',
+          },
+          {
+            displayName: 'Pre-Qualify',
+            name: 'preQualify',
+            type: 'boolean',
+            description: 'Whether leads should be pre-qualified',
+            default: false,
+          },
+
+          {
+            displayName: 'Status',
+            name: 'status',
+            type: 'json',
+            default: '[]',
+            description: 'Array of status definitions',
+          },
+          {
+            displayName: 'Table And Profile Config',
+            name: 'tableAndProfileConfig',
+            type: 'json',
+
+            default: '[]',
+            description: 'Configuration for table and profile fields',
+          },
+        ],
       },
     ],
   };
 
   methods = {
     loadOptions: {
+      async getWebhookTopics(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+        const layer = this.getCurrentNodeParameter('layer') as string | undefined;
+        const operation = this.getCurrentNodeParameter('operation') as string;
+
+        const baseTopics = [
+          {
+            name: 'New Lead',
+            value: 'newLead',
+            description: 'Triggered when a new lead is created',
+          },
+          {
+            name: 'Change Status',
+            value: 'changeStatus',
+            description: 'Triggered when a lead status changes',
+          },
+          {
+            name: 'Update Lead',
+            value: 'updateLead',
+            description: 'Triggered when a lead is updated',
+          },
+          {
+            name: 'Delete Lead',
+            value: 'deleteLead',
+            description: 'Triggered when a lead is deleted',
+          },
+        ];
+
+        // newTable nur bei agency layer UND bei attach/remove operations
+        if (layer === 'agency' && (operation === 'attach' || operation === 'remove')) {
+          baseTopics.push({
+            name: 'New Table Created',
+            value: 'newTable',
+            description: 'Triggered when a new table is created (Agency level only)',
+          });
+        }
+
+        // Bei poll operation immer alle Topics (auch newTable wenn layer=agency)
+        if (operation === 'poll' && layer === 'agency') {
+          baseTopics.push({
+            name: 'New Table Created',
+            value: 'newTable',
+            description: 'Triggered when a new table is created',
+          });
+        }
+
+        return baseTopics;
+      },
       // Customer loading mit Response-Log
       async getCustomers(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
         try {
@@ -673,7 +924,9 @@ export class LeadTable implements INodeType {
         try {
           const customerForLeadCreate = this.getCurrentNodeParameter('customerForLeadCreate') as string | undefined;
           const customerForLeads = this.getCurrentNodeParameter('customerForLeads') as string | undefined;
-          const customerId = customerForLeadCreate || customerForLeads || '';
+          const relatedId = this.getCurrentNodeParameter('relatedId') as string | undefined;
+
+          const customerId = customerForLeadCreate || customerForLeads || relatedId || '';
           if (!customerId) {
             return [
               {
@@ -864,32 +1117,31 @@ export class LeadTable implements INodeType {
               baseUrl,
             );
           } else if (operation === 'addFile') {
-  const leadId = this.getNodeParameter('leadId', i) as string;
-  const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i) as string;
+            const leadId = this.getNodeParameter('leadId', i) as string;
+            const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i) as string;
 
-  const buffer = await this.helpers.getBinaryDataBuffer(i, binaryPropertyName);
-  const binaryData = this.helpers.assertBinaryData(i, binaryPropertyName);
+            const buffer = await this.helpers.getBinaryDataBuffer(i, binaryPropertyName);
+            const binaryData = this.helpers.assertBinaryData(i, binaryPropertyName);
 
-  const form = new FormData();
-  form.append('file', buffer, {
-    filename: binaryData.fileName || 'upload.bin',
-    contentType: binaryData.mimeType || 'application/octet-stream',
-  });
-  form.append('id', leadId);
+            const form = new FormData();
+            form.append('file', buffer, {
+              filename: binaryData.fileName || 'upload.bin',
+              contentType: binaryData.mimeType || 'application/octet-stream',
+            });
+            form.append('id', leadId);
 
-  responseData = await makeApiRequest.call(
-    this,
-    'POST',
-    '/addFile',
-    {},          // qs
-    form,        // body
-    apiKey,
-    email,
-    baseUrl,
-    true,        
-  );
-}
-
+            responseData = await makeApiRequest.call(
+              this,
+              'POST',
+              '/addFile',
+              {}, // qs
+              form, // body
+              apiKey,
+              email,
+              baseUrl,
+              true,
+            );
+          }
         } else if (resource === 'campaign') {
           if (operation === 'getAll') {
             const customerId = this.getNodeParameter('customerId', i) as string;
@@ -912,41 +1164,131 @@ export class LeadTable implements INodeType {
             const qs = { page, limit };
 
             responseData = await makeApiRequest.call(this, 'GET', '/customer/all', qs, {}, apiKey, email, baseUrl);
+          } else if (operation === 'create') {
+            const name = this.getNodeParameter('name', i) as string;
+            const description = this.getNodeParameter('description', i, '') as string;
+
+            const body: IDataObject = { name };
+            if (description) {
+              body.description = description;
+            }
+
+            responseData = await makeApiRequest.call(
+              this,
+              'POST',
+              '/customer/create',
+              {},
+              body,
+              apiKey,
+              email,
+              baseUrl,
+            );
+          }
+        } else if (resource === 'table') {
+          if (operation === 'createTable') {
+            const customerID = this.getNodeParameter('customerID', i) as string;
+            const occupation = this.getNodeParameter('occupation', i) as string;
+            const funnelLink = this.getNodeParameter('funnelLink', i) as string;
+            const additionalFields = this.getNodeParameter('additionalFields', i, {}) as IDataObject;
+
+            const body = {
+              customerID,
+              occupation,
+              funnelLink,
+              ...additionalFields,
+            };
+
+            responseData = await makeApiRequest.call(this, 'POST', '/table/create', {}, body, apiKey, email, baseUrl);
           }
         } else if (resource === 'webhook') {
           if (operation === 'attach') {
-            const campaignId = this.getNodeParameter('campaignId', i) as string;
-            const webhookUrl = this.getNodeParameter('webhookUrl', i) as string;
             const topic = this.getNodeParameter('topic', i) as string;
             const layer = this.getNodeParameter('layer', i) as string;
 
-            const body = {
-              campaignID: campaignId,
+            // Validierung: newTable nur auf agency level
+            if (topic === 'newTable' && layer !== 'agency') {
+              throw new NodeOperationError(
+                this.getNode(),
+                'newTable events are only supported on Agency level. Please change Layer to Agency.',
+                { itemIndex: i },
+              );
+            }
+
+            const campaignId = this.getNodeParameter('campaignId', i) as string;
+            const webhookUrl = this.getNodeParameter('webhookUrl', i) as string;
+
+            const body: any = {
               url: webhookUrl,
               topic,
               layer,
             };
 
+            // Layer-spezifische Parameter hinzufügen
+            if (layer === 'table') {
+              body.campaignID = campaignId;
+              // customerID könnte auch benötigt werden - falls verfügbar:
+              // body.customerID = this.getNodeParameter('customerID', i, '') as string;
+            }
+
             responseData = await makeApiRequest.call(this, 'POST', '/attachWebhook', {}, body, apiKey, email, baseUrl);
           } else if (operation === 'remove') {
-            const topic = this.getNodeParameter('topic', i) as string;
+            const originalTopic = this.getNodeParameter('topic', i) as string;
             const layer = this.getNodeParameter('layer', i) as string;
             const id = this.getNodeParameter('id', i) as string;
             const webhookUrl = this.getNodeParameter('webhookUrl', i) as string;
             const relatedId = this.getNodeParameter('relatedId', i, '') as string;
 
-            const qs: any = {
-              topic,
+            // Fallback für newTable topic (nicht unterstützt beim DELETE)
+            const topicToUse = originalTopic === 'newTable' ? 'updateLead' : originalTopic;
+
+            // URL-encoded Body Parameter (nicht Query Parameter!)
+            const deleteParams: Record<string, string> = {
+              topic: topicToUse,
               layer,
               id,
               url: webhookUrl,
             };
 
             if (relatedId) {
-              qs.relatedID = relatedId;
+              deleteParams.relatedID = relatedId;
             }
 
-            responseData = await makeApiRequest.call(this, 'DELETE', '/removeWebhook', qs, {}, apiKey, email, baseUrl);
+            const urlEncodedBody = new URLSearchParams(deleteParams).toString();
+
+            // Spezielle Request-Behandlung für DELETE mit URL-encoded body
+            const options: any = {
+              method: 'DELETE',
+              url: `${baseUrl}/removeWebhook`,
+              headers: {
+                'x-api-key': String(apiKey).trim(),
+                email: String(email).trim(),
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: urlEncodedBody,
+              json: false, // Wichtig für URL-encoded body
+            };
+
+            this.logger.debug('LeadTable removeWebhook request', {
+              originalTopic,
+              topicUsed: topicToUse,
+              layer,
+              id,
+              relatedId,
+              bodyParams: deleteParams,
+            });
+
+            try {
+              responseData = await this.helpers.request(options);
+            } catch (error: any) {
+              this.logger.error('LeadTable removeWebhook Error', {
+                error: error.message,
+                statusCode: error.statusCode,
+                responseBody: error.response?.body,
+              });
+              throw new NodeOperationError(this.getNode(), `Failed to remove webhook: ${error.message}`, {
+                itemIndex: i,
+              });
+            }
           } else if (operation === 'poll') {
             const campaignId = this.getNodeParameter('campaignId', i) as string;
             const topic = this.getNodeParameter('topic', i) as string;

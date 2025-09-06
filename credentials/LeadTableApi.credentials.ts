@@ -4,7 +4,7 @@ export class LeadTableApi implements ICredentialType {
   name = 'leadTableApi';
 
   displayName = 'LeadTable API';
-		documentationUrl = 'https://app.swaggerhub.com/apis-docs/LeadTable/LeadTable/1.0.0#/Authentication/getAuth';
+  documentationUrl = 'https://github.com/rjsebening/n8n-nodes-leadtable/blob/main/CREDENTIALS.md';
 
   properties: INodeProperties[] = [
     {
