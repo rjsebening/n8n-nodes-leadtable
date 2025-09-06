@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-leadtable",
-  "version": "1.0.4",
+  "version": "1.0.3",
   "description": "n8n custom node for LeadTable API - Lead management and webhook automation",
   "license": "MIT",
   "homepage": "https://github.com/rjsebening/n8n-nodes-leadtable#readme",
