@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-leadtable",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "n8n custom node for LeadTable API - Lead management and webhook automation",
   "license": "MIT",
   "homepage": "https://github.com/rjsebening/n8n-nodes-leadtable#readme",
@@ -19,12 +19,11 @@
     "node": ">=20.15"
   },
   "scripts": {
-  "build": "npx rimraf dist && tsc",
-     "dev": "tsc --watch",
-      "format": "prettier nodes credentials --write",
-     "lint": "eslint nodes credentials package.json",
-    "lintfix": "eslint nodes credentials package.json --fix",
-    "prepublishOnly": "npm run build && npm run lint -c .eslintrc.prepublish.js nodes credentials package.json"
+    "build": "npx rimraf dist && tsc",
+    "dev": "tsc --watch",
+    "format": "prettier nodes credentials --write",
+    "lint": "eslint nodes credentials package.json",
+    "lintfix": "eslint nodes credentials package.json --fix"
   },
   "main": "dist/index.js",
   "files": [
@@ -67,8 +66,5 @@
   },
   "peerDependencies": {
     "n8n-workflow": "*"
-  },
-  "dependencies": {
-    "form-data": "^4.0.4"
   }
 }
