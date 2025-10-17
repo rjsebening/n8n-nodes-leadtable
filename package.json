@@ -19,7 +19,7 @@
     "node": ">=20.15"
   },
   "scripts": {
-    "build": "npx rimraf dist && tsc",
+    "build": "npx rimraf dist && tsc && gulp build:icons",
     "dev": "tsc --watch",
     "format": "prettier nodes credentials --write",
     "lint": "eslint nodes credentials package.json",
@@ -66,5 +66,8 @@
   },
   "peerDependencies": {
     "n8n-workflow": "*"
+  },
+  "dependencies": {
+    "gulp": "^5.0.1"
   }
 }
