@@ -21,6 +21,7 @@ package-lock.json
 *.swp
 *.swo
 *~
+*.tgz
 
 # OS generated files
 .DS_Store
@@ -53,4 +54,4 @@ coverage/
 
 # Temporary folders
 tmp/
-temp/*.tgz
+temp/
