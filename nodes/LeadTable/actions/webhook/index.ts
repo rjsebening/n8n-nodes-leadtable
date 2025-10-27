@@ -120,7 +120,8 @@ export const webhookProperties: INodeProperties[] = [
   {
     displayName: 'Agency ID',
     name: 'id',
-    type: 'string',
+    type: 'options',
+    typeOptions: { loadOptionsMethod: 'getCurrentUserId' },
     required: true,
     displayOptions: { show: { resource: ['webhook'], operation: ['remove'], layer: ['agency'] } },
     default: '',

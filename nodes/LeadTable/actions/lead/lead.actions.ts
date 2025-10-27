@@ -2,9 +2,13 @@
 import type { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getClient } from '../../methods/transport/http-client';
+import { getWebClient } from '../../methods/transport/http-client.web';
 
 export async function runLead(self: IExecuteFunctions, i: number, operation: string) {
+  // External-API (…/api/v3/external)
   const api = getClient(self);
+  // Web-API (…/api)
+  const web = getWebClient(self);
 
   if (operation === 'create') {
     const campaignId = self.getNodeParameter('campaignId', i) as string;
@@ -72,6 +76,27 @@ export async function runLead(self: IExecuteFunctions, i: number, operation: str
     form.append('id', leadId);
 
     return api.request('POST', '/addFile', { body: form, isFormData: true });
+  }
+
+  if (operation === 'addEvent') {
+  const leadId = self.getNodeParameter('leadId', i) as string;
+  const message = self.getNodeParameter('message', i) as string;
+  const responsible = self.getNodeParameter('responsible', i, 'API') as string;
+
+  if (!leadId) {
+    throw new NodeOperationError(self.getNode(), 'Lead ID is required.', { itemIndex: i });
+  }
+  if (!message) {
+    throw new NodeOperationError(self.getNode(), 'Message is required.', { itemIndex: i });
+  }
+
+  const body: IDataObject = {
+    _id: leadId,
+    message,
+    responsible,
+  };
+
+  return web.request('POST', '/lead/addEvent', { body });
   }
 
   throw new Error(`Unsupported lead operation: ${operation}`);

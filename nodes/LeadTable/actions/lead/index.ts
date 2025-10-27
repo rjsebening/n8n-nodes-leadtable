@@ -10,6 +10,12 @@ export const leadProperties: INodeProperties[] = [
     displayOptions: { show: { resource: ['lead'] } },
     options: [
       { name: 'Add File', value: 'addFile', description: 'Upload a file to a lead', action: 'Add file to lead' },
+      {
+        name: 'Add Note',
+        value: 'addEvent',
+        description: 'Add a Note to the History of a Lead',
+        action: 'Adds an entry to a leads history',
+      },
       { name: 'Create', value: 'create', description: 'Create a new lead', action: 'Create a lead' },
       { name: 'Get', value: 'get', description: 'Get a lead by ID', action: 'Get a lead' },
       {
@@ -89,7 +95,9 @@ export const leadProperties: INodeProperties[] = [
     name: 'leadId',
     type: 'string',
     required: true,
-    displayOptions: { show: { resource: ['lead'], operation: ['get', 'update', 'updateDescription', 'addFile'] } },
+    displayOptions: {
+      show: { resource: ['lead'], operation: ['get', 'update', 'updateDescription', 'addFile', 'addEvent'] },
+    },
     default: '',
     description: 'The ID of the lead',
   },
@@ -132,7 +140,25 @@ export const leadProperties: INodeProperties[] = [
     default: '',
     description: 'The new description for the lead',
   },
-
+  // Add Note
+  {
+    displayName: 'Message',
+    name: 'message',
+    type: 'string',
+    required: true,
+    default: '',
+    description: 'Event message to attach to the lead',
+    displayOptions: { show: { resource: ['lead'], operation: ['addEvent'] } },
+  },
+  {
+  displayName: 'Responsible',
+  name: 'responsible',
+  type: 'string',
+  required: false,
+  default: 'API',
+  description: 'Name of the person who added the note (defaults to "API")',
+  displayOptions: { show: { resource: ['lead'], operation: ['addEvent'] } },
+  },
   // Get options
   {
     displayName: 'Plain Description',

@@ -117,7 +117,6 @@ export class LeadTableTrigger implements INodeType {
 
           return true;
         } catch {
-          // nicht werfen; Deaktivierung soll weiterlaufen
           return true;
         }
       },
