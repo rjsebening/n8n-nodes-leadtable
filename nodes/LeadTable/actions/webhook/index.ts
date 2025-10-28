@@ -118,14 +118,15 @@ export const webhookProperties: INodeProperties[] = [
 
   // Remove (agency-layer)
   {
-    displayName: 'Agency ID',
+    displayName: 'Agency Name or ID',
     name: 'id',
     type: 'options',
     typeOptions: { loadOptionsMethod: 'getCurrentUserId' },
     required: true,
     displayOptions: { show: { resource: ['webhook'], operation: ['remove'], layer: ['agency'] } },
     default: '',
-    description: 'The ID of the agency',
+    description:
+      'The ID of the agency. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
   },
 
   // Remove (table-layer)

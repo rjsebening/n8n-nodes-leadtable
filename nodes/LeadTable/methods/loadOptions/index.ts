@@ -4,6 +4,7 @@ import { getCustomers } from './getCustomers';
 import { getCampaignsForCustomer } from './getCampaignsForCustomer';
 import { getEvents } from './getEvents';
 import { getCurrentUserId } from './getCurrentUserId';
+import { getStatusTemplates } from './getStatusTemplates';
 
 export const loadOptions = {
   async getWebhookTopics(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
@@ -20,6 +21,9 @@ export const loadOptions = {
   },
   async getCurrentUserId(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
     return getCurrentUserId.call(this);
+  },
+  async getStatusTemplates(this: ILoadOptionsFunctions) {
+    return getStatusTemplates.call(this);
   },
 };
 

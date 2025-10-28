@@ -67,7 +67,7 @@ export const tableProperties: INodeProperties[] = [
         displayName: 'Override Values',
         name: 'overrideValues',
         type: 'json',
-        default: '[]',
+        default: '{}',
         description: 'Override values for manual lead creation',
       },
       {
@@ -76,6 +76,13 @@ export const tableProperties: INodeProperties[] = [
         type: 'boolean',
         description: 'Whether leads should be pre-qualified',
         default: false,
+      },
+      {
+        displayName: 'Show Duplicate Leads Indicator',
+        name: 'showDuplicateLeadsIndicator',
+        type: 'boolean',
+        default: true,
+        description: 'Whether duplicate leads should be marked',
       },
       {
         displayName: 'Status',

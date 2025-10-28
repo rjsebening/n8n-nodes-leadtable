@@ -8,7 +8,7 @@ type Self = IExecuteFunctions | ILoadOptionsFunctions;
 export function makeClient(self: Self, resolveUrl: (endpoint: string, creds: any) => string) {
   return {
     async request(
-      method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+      method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
       endpoint: string,
       { qs = {}, body = {}, isFormData = false }: RequestOpts = {},
     ): Promise<any> {

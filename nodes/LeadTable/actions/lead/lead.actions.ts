@@ -79,24 +79,24 @@ export async function runLead(self: IExecuteFunctions, i: number, operation: str
   }
 
   if (operation === 'addEvent') {
-  const leadId = self.getNodeParameter('leadId', i) as string;
-  const message = self.getNodeParameter('message', i) as string;
-  const responsible = self.getNodeParameter('responsible', i, 'API') as string;
+    const leadId = self.getNodeParameter('leadId', i) as string;
+    const message = self.getNodeParameter('message', i) as string;
+    const responsible = self.getNodeParameter('responsible', i, 'API') as string;
 
-  if (!leadId) {
-    throw new NodeOperationError(self.getNode(), 'Lead ID is required.', { itemIndex: i });
-  }
-  if (!message) {
-    throw new NodeOperationError(self.getNode(), 'Message is required.', { itemIndex: i });
-  }
+    if (!leadId) {
+      throw new NodeOperationError(self.getNode(), 'Lead ID is required.', { itemIndex: i });
+    }
+    if (!message) {
+      throw new NodeOperationError(self.getNode(), 'Message is required.', { itemIndex: i });
+    }
 
-  const body: IDataObject = {
-    _id: leadId,
-    message,
-    responsible,
-  };
+    const body: IDataObject = {
+      _id: leadId,
+      message,
+      responsible,
+    };
 
-  return web.request('POST', '/lead/addEvent', { body });
+    return web.request('POST', '/lead/addEvent', { body });
   }
 
   throw new Error(`Unsupported lead operation: ${operation}`);

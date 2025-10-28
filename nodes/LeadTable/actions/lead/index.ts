@@ -151,13 +151,12 @@ export const leadProperties: INodeProperties[] = [
     displayOptions: { show: { resource: ['lead'], operation: ['addEvent'] } },
   },
   {
-  displayName: 'Responsible',
-  name: 'responsible',
-  type: 'string',
-  required: false,
-  default: 'API',
-  description: 'Name of the person who added the note (defaults to "API")',
-  displayOptions: { show: { resource: ['lead'], operation: ['addEvent'] } },
+    displayName: 'Responsible',
+    name: 'responsible',
+    type: 'string',
+    default: 'API',
+    description: 'Name of the person who added the note (defaults to "API")',
+    displayOptions: { show: { resource: ['lead'], operation: ['addEvent'] } },
   },
   // Get options
   {
