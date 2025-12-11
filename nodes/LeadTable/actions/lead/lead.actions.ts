@@ -62,20 +62,32 @@ export async function runLead(self: IExecuteFunctions, i: number, operation: str
   }
 
   if (operation === 'addFile') {
-    const leadId = self.getNodeParameter('leadId', i) as string;
-    const binaryPropertyName = self.getNodeParameter('binaryPropertyName', i) as string;
+      const leadId = self.getNodeParameter('leadId', i) as string;
+      const binaryPropertyName = self.getNodeParameter('binaryPropertyName', i) as string;
 
-    const buffer = await self.helpers.getBinaryDataBuffer(i, binaryPropertyName);
-    const binaryData = self.helpers.assertBinaryData(i, binaryPropertyName);
+      const buffer = await self.helpers.getBinaryDataBuffer(i, binaryPropertyName);
+      const binaryData = self.helpers.assertBinaryData(i, binaryPropertyName);
 
-    const form = api.formData();
-    form.append('file', buffer, {
-      filename: binaryData.fileName || 'upload.bin',
-      contentType: binaryData.mimeType || 'application/octet-stream',
-    });
-    form.append('id', leadId);
+      const form = api.formData();
 
-    return api.request('POST', '/addFile', { body: form, isFormData: true });
+      // @ts-ignore
+      const file = api.toFile(
+          buffer,
+          binaryData.mimeType || 'application/octet-stream',
+          binaryData.fileName || 'upload.bin',
+      );
+
+      form.append('file', file);
+      form.append('id', leadId);
+
+      const raw = await api.request('POST', '/addFile', {
+          body: form,
+          isFormData: true,
+      });
+
+      const response = typeof raw === 'string' ? JSON.parse(raw) : raw;
+
+      return response;
   }
 
   if (operation === 'addEvent') {

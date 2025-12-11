@@ -1,9 +1,28 @@
 import type { IDataObject, IExecuteFunctions, ILoadOptionsFunctions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
-import FormData from 'form-data';
 
-export type RequestOpts = { qs?: IDataObject; body?: any; isFormData?: boolean };
+export type RequestOpts = {
+  qs?: IDataObject;
+  body?: any;
+  isFormData?: boolean;
+};
+
 type Self = IExecuteFunctions | ILoadOptionsFunctions;
+
+function createFormData(): FormData {
+  if (typeof (globalThis as any).FormData !== 'function') {
+    throw new Error('FormData is not available in this environment.');
+  }
+  return new (globalThis as any).FormData();
+}
+
+// @ts-ignore -- Buffer exists globally in Node.js (n8n runtime)
+function toFile(buffer: Buffer, mime: string, filename: string): File {
+  if (typeof (globalThis as any).File !== 'function') {
+    throw new Error('File is not available in this environment.');
+  }
+  return new File([buffer], filename, { type: mime });
+}
 
 export function makeClient(self: Self, resolveUrl: (endpoint: string, creds: any) => string) {
   return {
@@ -30,7 +49,11 @@ export function makeClient(self: Self, resolveUrl: (endpoint: string, creds: any
       const options: any = {
         method,
         url,
-        headers: { 'x-api-key': apiKey, email, accept: 'application/json' },
+        headers: {
+          'x-api-key': apiKey,
+          email,
+          accept: 'application/json',
+        },
         qs,
         json: !isFormData,
       };
@@ -44,7 +67,12 @@ export function makeClient(self: Self, resolveUrl: (endpoint: string, creds: any
 
       try {
         const response = await (self as any).helpers.request(options);
-        (self as any).logger?.debug?.('LeadTable API Raw Response', { url, raw: response });
+
+        (self as any).logger?.debug?.('LeadTable API Raw Response', {
+          url,
+          raw: response,
+        });
+
         return response;
       } catch (error: any) {
         (self as any).logger?.error?.('LeadTable API Error', {
@@ -55,9 +83,15 @@ export function makeClient(self: Self, resolveUrl: (endpoint: string, creds: any
         });
 
         let msg = `LeadTable API request failed: ${error.statusCode || 'UNKNOWN'}`;
-        if (error.statusCode === 403) msg += ' - Authentication failed. Please check your API Key and Email address.';
-        else if (error.response?.body?.error) msg += ` - "${error.response.body.error}"`;
-        else if (error.message) msg += ` - "${error.message}"`;
+
+        if (error.statusCode === 403) {
+          msg += ' - Authentication failed. Please check your API Key and Email.';
+        }
+
+        if (error.response?.body?.error) {
+          msg += ` - "${error.response.body.error}"`;
+        }
+
         throw new NodeOperationError((self as any).getNode(), msg);
       }
     },
@@ -67,6 +101,7 @@ export function makeClient(self: Self, resolveUrl: (endpoint: string, creds: any
       const apiKey = String(credentials.apiKey || '').trim();
       const email = String(credentials.email || '').trim();
       const url = resolveUrl(endpoint, credentials);
+
       const bodyEncoded = new URLSearchParams(form).toString();
 
       const options: any = {
@@ -84,21 +119,25 @@ export function makeClient(self: Self, resolveUrl: (endpoint: string, creds: any
 
       try {
         const response = await (self as any).helpers.request(options);
-        (self as any).logger?.debug?.('LeadTable API Raw Response', { url, raw: response });
+
+        (self as any).logger?.debug?.('LeadTable API Raw Response', {
+          url,
+          raw: response,
+        });
+
         return response;
       } catch (error: any) {
-        (self as any).logger?.error?.('LeadTable API Error', {
-          url,
-          statusCode: error.statusCode,
-          message: error.message,
-          body: error.response?.body,
-        });
         throw new NodeOperationError((self as any).getNode(), `LeadTable DELETE failed: ${error.message}`);
       }
     },
 
     formData(): FormData {
-      return new FormData();
+      return createFormData();
+    },
+
+    // @ts-ignore -- Buffer exists globally in Node.js (n8n runtime)
+    toFile(buffer: Buffer, mime: string, filename: string): File {
+      return toFile(buffer, mime, filename);
     },
   };
 }
