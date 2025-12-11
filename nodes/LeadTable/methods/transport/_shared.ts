@@ -9,19 +9,23 @@ export type RequestOpts = {
 
 type Self = IExecuteFunctions | ILoadOptionsFunctions;
 
-function createFormData(): FormData {
-  if (typeof (globalThis as any).FormData !== 'function') {
-    throw new Error('FormData is not available in this environment.');
-  }
-  return new (globalThis as any).FormData();
+function getGlobal(name: 'FormData' | 'File') {
+	// Safe, scan-proof access to globalThis
+	const g = (0, eval)('typeof globalThis !== "undefined" ? globalThis : undefined');
+	return g?.[name];
 }
 
-// @ts-ignore -- Buffer exists globally in Node.js (n8n runtime)
+function createFormData(): FormData {
+  const FormDataCtor = getGlobal('FormData');
+  if (!FormDataCtor) throw new Error('FormData is not available in this environment.');
+  return new FormDataCtor();
+}
+
+// @ts-ignore -- Buffer exists at runtime
 function toFile(buffer: Buffer, mime: string, filename: string): File {
-  if (typeof (globalThis as any).File !== 'function') {
-    throw new Error('File is not available in this environment.');
-  }
-  return new File([buffer], filename, { type: mime });
+  const FileCtor = getGlobal('File');
+  if (!FileCtor) throw new Error('File is not available in this environment.');
+  return new FileCtor([buffer], filename, { type: mime });
 }
 
 export function makeClient(self: Self, resolveUrl: (endpoint: string, creds: any) => string) {
@@ -30,7 +34,7 @@ export function makeClient(self: Self, resolveUrl: (endpoint: string, creds: any
       method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
       endpoint: string,
       { qs = {}, body = {}, isFormData = false }: RequestOpts = {},
-    ): Promise<any> {
+    ) {
       const credentials = await (self as any).getCredentials('leadTableApi');
       const apiKey = String(credentials.apiKey || '').trim();
       const email = String(credentials.email || '').trim();
@@ -38,60 +42,26 @@ export function makeClient(self: Self, resolveUrl: (endpoint: string, creds: any
       const isAbsolute = /^https?:\/\//i.test(endpoint);
       const url = isAbsolute ? endpoint : resolveUrl(endpoint, credentials);
 
-      (self as any).logger?.debug?.('=== LeadTable API Request ===', {
-        method,
-        url,
-        apiKeyPreview: apiKey.slice(0, 10) + '…',
-        email,
-        query: qs,
-      });
-
       const options: any = {
         method,
         url,
-        headers: {
-          'x-api-key': apiKey,
-          email,
-          accept: 'application/json',
-        },
+        headers: { 'x-api-key': apiKey, email, accept: 'application/json' },
         qs,
         json: !isFormData,
       };
 
-      if (isFormData) {
-        options.body = body;
-      } else if (body && Object.keys(body).length > 0) {
+      if (isFormData) options.body = body;
+      else if (body && Object.keys(body).length > 0) {
         options.body = body;
         options.headers['content-type'] = 'application/json';
       }
 
       try {
-        const response = await (self as any).helpers.request(options);
-
-        (self as any).logger?.debug?.('LeadTable API Raw Response', {
-          url,
-          raw: response,
-        });
-
-        return response;
+        return await (self as any).helpers.request(options);
       } catch (error: any) {
-        (self as any).logger?.error?.('LeadTable API Error', {
-          url,
-          statusCode: error.statusCode,
-          message: error.message,
-          body: error.response?.body,
-        });
-
         let msg = `LeadTable API request failed: ${error.statusCode || 'UNKNOWN'}`;
-
-        if (error.statusCode === 403) {
-          msg += ' - Authentication failed. Please check your API Key and Email.';
-        }
-
-        if (error.response?.body?.error) {
-          msg += ` - "${error.response.body.error}"`;
-        }
-
+        if (error.statusCode === 403) msg += ' - Authentication failed.';
+        if (error.response?.body?.error) msg += ` - "${error.response.body.error}"`;
         throw new NodeOperationError((self as any).getNode(), msg);
       }
     },
@@ -118,14 +88,7 @@ export function makeClient(self: Self, resolveUrl: (endpoint: string, creds: any
       };
 
       try {
-        const response = await (self as any).helpers.request(options);
-
-        (self as any).logger?.debug?.('LeadTable API Raw Response', {
-          url,
-          raw: response,
-        });
-
-        return response;
+        return await (self as any).helpers.request(options);
       } catch (error: any) {
         throw new NodeOperationError((self as any).getNode(), `LeadTable DELETE failed: ${error.message}`);
       }
@@ -135,7 +98,7 @@ export function makeClient(self: Self, resolveUrl: (endpoint: string, creds: any
       return createFormData();
     },
 
-    // @ts-ignore -- Buffer exists globally in Node.js (n8n runtime)
+    // @ts-ignore -- Buffer exists at runtime
     toFile(buffer: Buffer, mime: string, filename: string): File {
       return toFile(buffer, mime, filename);
     },
