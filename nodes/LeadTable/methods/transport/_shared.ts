@@ -10,9 +10,8 @@ export type RequestOpts = {
 type Self = IExecuteFunctions | ILoadOptionsFunctions;
 
 function getGlobal(name: 'FormData' | 'File') {
-	// Safe, scan-proof access to globalThis
-	const g = (0, eval)('typeof globalThis !== "undefined" ? globalThis : undefined');
-	return g?.[name];
+  const g = (0, eval)('typeof globalThis !== "undefined" ? globalThis : undefined');
+  return g?.[name];
 }
 
 function createFormData(): FormData {

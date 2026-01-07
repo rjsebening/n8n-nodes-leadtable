@@ -55,7 +55,7 @@ export const triggerProperties: INodeProperties[] = [
     type: 'options',
     typeOptions: {
       loadOptionsMethod: 'getCampaignsForCustomer',
-      loadOptionsDependsOn: ['customerId'],
+      loadOptionsDependsOn: ['customerId', 'webhookLevel'],
     },
     displayOptions: { show: { webhookLevel: ['table'] } },
     default: '',
