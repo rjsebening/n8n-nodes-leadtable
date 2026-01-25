@@ -92,21 +92,46 @@ export async function runLead(self: IExecuteFunctions, i: number, operation: str
 
   if (operation === 'addEvent') {
     const leadId = self.getNodeParameter('leadId', i) as string;
-    const message = self.getNodeParameter('message', i) as string;
+    const eventType = self.getNodeParameter('eventType', i) as string;
     const responsible = self.getNodeParameter('responsible', i, 'API') as string;
 
     if (!leadId) {
       throw new NodeOperationError(self.getNode(), 'Lead ID is required.', { itemIndex: i });
     }
-    if (!message) {
-      throw new NodeOperationError(self.getNode(), 'Message is required.', { itemIndex: i });
-    }
 
-    const body: IDataObject = {
+    let body: IDataObject = {
       _id: leadId,
-      message,
       responsible,
     };
+
+    if (eventType === 'note') {
+      const message = self.getNodeParameter('message', i) as string;
+
+      if (!message) {
+        throw new NodeOperationError(self.getNode(), 'Message is required.', { itemIndex: i });
+      }
+
+      body = {
+        ...body,
+        status: 'statusUnchanged',
+        message,
+      };
+    }
+
+    if (eventType === 'status') {
+      const status = self.getNodeParameter('status', i) as string;
+      const message = self.getNodeParameter('message', i, '') as string;
+
+      if (!status) {
+        throw new NodeOperationError(self.getNode(), 'Status is required.', { itemIndex: i });
+      }
+
+      body = {
+        ...body,
+        status,
+        ...(message ? { message } : {}),
+      };
+    }
 
     return web.request('POST', '/lead/addEvent', { body });
   }

@@ -9,13 +9,13 @@ export const leadProperties: INodeProperties[] = [
     noDataExpression: true,
     displayOptions: { show: { resource: ['lead'] } },
     options: [
-      { name: 'Add File', value: 'addFile', description: 'Upload a file to a lead', action: 'Add file to lead' },
       {
-        name: 'Add Note',
+        name: 'Add Event',
         value: 'addEvent',
-        description: 'Add a Note to the History of a Lead',
-        action: 'Adds an entry to a leads history',
+        description: 'Add an event to a lead (note and/or status change)',
+        action: 'Adds an event to a lead',
       },
+      { name: 'Add File', value: 'addFile', description: 'Upload a file to a lead', action: 'Add file to lead' },
       { name: 'Create', value: 'create', description: 'Create a new lead', action: 'Create a lead' },
       { name: 'Get', value: 'get', description: 'Get a lead by ID', action: 'Get a lead' },
       {
@@ -142,13 +142,51 @@ export const leadProperties: INodeProperties[] = [
   },
   // Add Note
   {
-    displayName: 'Message',
-    name: 'message',
+    displayName: 'Event Type',
+    name: 'eventType',
+    type: 'options',
+    default: 'note',
+    options: [
+      {
+        name: 'Add Note',
+        value: 'note',
+        description: 'Add a note to the lead without changing the status',
+      },
+      {
+        name: 'Change Status',
+        value: 'status',
+        description: 'Change the lead status (optional note)',
+      },
+    ],
+    displayOptions: { show: { resource: ['lead'], operation: ['addEvent'] } },
+  },
+  {
+    displayName: 'Status',
+    name: 'status',
     type: 'string',
     required: true,
     default: '',
-    description: 'Event message to attach to the lead',
-    displayOptions: { show: { resource: ['lead'], operation: ['addEvent'] } },
+    description: 'New lead status (must match an existing status title)',
+    displayOptions: {
+      show: {
+        resource: ['lead'],
+        operation: ['addEvent'],
+        eventType: ['status'],
+      },
+    },
+  },
+  {
+    displayName: 'Message',
+    name: 'message',
+    type: 'string',
+    default: '',
+    description: 'Event message or note attached to the lead',
+    displayOptions: {
+      show: {
+        resource: ['lead'],
+        operation: ['addEvent'],
+      },
+    },
   },
   {
     displayName: 'Responsible',
