@@ -115,7 +115,7 @@ export const tableProperties: INodeProperties[] = [
         description: 'Array of status definitions',
       },
       {
-        displayName: 'Table And Profile Config',
+        displayName: 'Table and Profile Config',
         name: 'tableAndProfileConfig',
         type: 'json',
         default: '[]',

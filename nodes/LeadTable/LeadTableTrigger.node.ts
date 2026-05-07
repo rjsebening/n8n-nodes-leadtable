@@ -119,7 +119,11 @@ export class LeadTableTrigger implements INodeType {
           delete store.webhookParams;
 
           return true;
-        } catch {
+        } catch (error) {
+          this.logger.error(
+            'LeadTable webhook delete failed; webhook may remain on the LeadTable side.',
+            { error: (error as Error).message },
+          );
           return true;
         }
       },

@@ -12,7 +12,7 @@ export async function getWebhookTopics(this: ILoadOptionsFunctions): Promise<INo
     { name: 'Delete Lead', value: 'deleteLead', description: 'Triggered when a lead is deleted' },
   ];
 
-  // newTable nur auf Agency + attach/remove
+  // newTable only on Agency level + attach/remove
   if (layer === 'agency' && (operation === 'attach' || operation === 'remove')) {
     topics.push({
       name: 'New Table Created',
@@ -21,7 +21,7 @@ export async function getWebhookTopics(this: ILoadOptionsFunctions): Promise<INo
     });
   }
 
-  // Bei poll + agency auch newTable anbieten
+  // On poll + agency, also offer newTable
   if (operation === 'poll' && layer === 'agency') {
     topics.push({
       name: 'New Table Created',

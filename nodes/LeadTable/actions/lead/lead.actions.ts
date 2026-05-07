@@ -68,20 +68,17 @@ export async function runLead(self: IExecuteFunctions, i: number, operation: str
     const buffer = await self.helpers.getBinaryDataBuffer(i, binaryPropertyName);
     const binaryData = self.helpers.assertBinaryData(i, binaryPropertyName);
 
-    const form = api.formData();
-
-    const file = api.toFile(
-      buffer,
-      binaryData.mimeType || 'application/octet-stream',
-      binaryData.fileName || 'upload.bin',
-    );
-
-    form.append('file', file);
-    form.append('id', leadId);
-
     const raw = await api.request('POST', '/addFile', {
-      body: form,
-      isFormData: true,
+      formData: {
+        file: {
+          value: buffer,
+          options: {
+            filename: binaryData.fileName || 'upload.bin',
+            contentType: binaryData.mimeType || 'application/octet-stream',
+          },
+        },
+        id: leadId,
+      },
     });
 
     const response = typeof raw === 'string' ? JSON.parse(raw) : raw;
