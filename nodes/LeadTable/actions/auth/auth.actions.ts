@@ -2,7 +2,7 @@
 import type { IExecuteFunctions } from 'n8n-workflow';
 import { getClient } from '../../methods/transport/http-client';
 
-export async function runAuth(self: IExecuteFunctions, i: number, operation: string) {
+export async function runAuth(self: IExecuteFunctions, _i: number, operation: string) {
   const api = getClient(self);
 
   if (operation === 'check') {

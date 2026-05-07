@@ -1,4 +1,4 @@
-import type { IExecuteFunctions, ILoadOptionsFunctions } from 'n8n-workflow';
+import type { ICredentialDataDecryptedObject, IExecuteFunctions, ILoadOptionsFunctions } from 'n8n-workflow';
 import { makeClient } from './_shared';
 
 function deriveWebBase(externalBase?: string) {
@@ -7,8 +7,8 @@ function deriveWebBase(externalBase?: string) {
   return String(externalBase).replace(/\/v\d+\/external\/?$/, '') || fallback;
 }
 
-function resolveWeb(endpoint: string, creds: any) {
-  const webBase = deriveWebBase(creds.baseUrl);
+function resolveWeb(endpoint: string, creds: ICredentialDataDecryptedObject) {
+  const webBase = deriveWebBase(creds.baseUrl as string | undefined);
   return `${webBase}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
 }
 

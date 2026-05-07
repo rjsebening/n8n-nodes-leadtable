@@ -36,12 +36,13 @@ export class LeadTable implements INodeType {
     icon: 'file:icon.svg',
     group: ['transform'],
     version: 1,
+    usableAsTool: true,
     subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
     description: 'Integration with LeadTable API (powered by agentur-systeme.de)',
     defaults: {
       name: 'LeadTable',
       // @ts-expect-error required by n8n linter
-      description: 'LeadTable integration node',
+      description: 'Integration with LeadTable API (powered by agentur-systeme.de)',
     },
     inputs: [NodeConnectionType.Main],
     outputs: [NodeConnectionType.Main],

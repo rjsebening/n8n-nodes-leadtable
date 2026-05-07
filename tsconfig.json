@@ -1,15 +1,30 @@
 {
-  "compilerOptions": {
-    "target": "ES2019",
-    "module": "CommonJS",
-    "moduleResolution": "Node",
-    "outDir": "./dist",
-    "strict": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-
-  },
-  "include": ["nodes/**/*", "nodes/**/*.json", "credentials/**/*", "index.ts", "package.json"],
-  "exclude": ["dist", "node_modules", "**/*.test.ts"]
+	"compilerOptions": {
+		"target": "es2019",
+		"module": "node16",
+		"lib": ["es2019"],
+		"declaration": true,
+		"outDir": "./dist",
+		"rootDir": "./",
+		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"moduleResolution": "node16",
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true
+	},
+	"include": [
+		"credentials/**/*",
+		"nodes/**/*"
+	],
+	"exclude": [
+		"dist/**/*",
+		"**/*.test.ts"
+	]
 }

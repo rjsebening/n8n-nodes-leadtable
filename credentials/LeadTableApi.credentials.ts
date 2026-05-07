@@ -1,8 +1,8 @@
-import { IAuthenticateGeneric, ICredentialTestRequest, ICredentialType, INodeProperties } from 'n8n-workflow';
+import { IAuthenticateGeneric, ICredentialTestRequest, ICredentialType, Icon, INodeProperties } from 'n8n-workflow';
 
 export class LeadTableApi implements ICredentialType {
   name = 'leadTableApi';
-
+  icon: Icon = 'file:icon.svg';
   displayName = 'LeadTable API';
   documentationUrl = 'https://github.com/rjsebening/n8n-nodes-leadtable/blob/main/CREDENTIALS.md';
 

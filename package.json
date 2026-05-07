@@ -8,6 +8,16 @@
     "name": "Jörg Sebening",
     "email": "dev@joerg-sebening.com"
   },
+    "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "leadtable",
+    "lead-management",
+    "webhook",
+    "automation",
+    "crm",
+    "workflow"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/rjsebening/n8n-nodes-leadtable.git"
@@ -23,7 +33,11 @@
     "dev": "tsc --watch",
     "format": "prettier nodes credentials --write",
     "lint": "eslint nodes credentials package.json",
-    "lintfix": "eslint nodes credentials package.json --fix"
+    "lintfix": "eslint nodes credentials package.json --fix",
+    "lint:node": "n8n-node lint",
+    "lint:all": "npm run lint && npm run lint:node",
+    "release": "n8n-node release",
+    "prepublishOnly": "n8n-node prerelease"
   },
   "main": "dist/index.js",
   "files": [
@@ -34,8 +48,9 @@
   "publishConfig": {
     "access": "public"
   },
-  "n8n": {
-    "n8nNodesApiVersion": 1,
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
     "credentials": [
       "dist/credentials/LeadTableApi.credentials.js"
     ],
@@ -44,31 +59,20 @@
       "dist/nodes/LeadTable/LeadTableTrigger.node.js"
     ]
   },
-  "keywords": [
-    "n8n-community-node-package",
-    "n8n",
-    "leadtable",
-    "lead-management",
-    "webhook",
-    "automation",
-    "crm",
-    "workflow"
-  ],
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "~8.32.0",
-    "@typescript-eslint/parser": "~8.32.0",
-    "eslint": "^8.57.0",
+    "@n8n/node-cli": "^0.23.1",
+    "@typescript-eslint/parser": "^8.52.0",
+    "eslint": "^9.39.4",
     "eslint-plugin-n8n-nodes-base": "^1.16.3",
-    "exit": "^0.1.2",
+    "gulp": "^5.0.0",
+    "gulp-cli": "^3.1.0",
     "package-json-from-dist": "^1.0.1",
-    "prettier": "^3.6.2",
+    "prettier": "^3.8.1",
+    "release-it": "^19.2.4",
     "rimraf": "^6.0.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.3"
   },
   "peerDependencies": {
     "n8n-workflow": "*"
-  },
-  "dependencies": {
-    "gulp": "^5.0.1"
   }
 }

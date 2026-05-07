@@ -12,8 +12,8 @@ export async function runLead(self: IExecuteFunctions, i: number, operation: str
 
   if (operation === 'create') {
     const campaignId = self.getNodeParameter('campaignId', i) as string;
-    const leadData = self.getNodeParameter('leadData', i) as any;
-    const body = { campaignID: campaignId, data: leadData?.data || [] };
+    const leadData = self.getNodeParameter('leadData', i) as IDataObject;
+    const body = { campaignID: campaignId, data: (leadData?.data as IDataObject[]) || [] };
     return api.request('POST', '/lead/create', { body });
   }
 
@@ -70,7 +70,6 @@ export async function runLead(self: IExecuteFunctions, i: number, operation: str
 
     const form = api.formData();
 
-    // @ts-ignore
     const file = api.toFile(
       buffer,
       binaryData.mimeType || 'application/octet-stream',

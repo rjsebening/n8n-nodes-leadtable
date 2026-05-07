@@ -15,8 +15,31 @@ export const tableProperties: INodeProperties[] = [
         description: 'Create a new table (campaign) for a customer',
         action: 'Create table',
       },
+      {
+        name: 'Get Tables',
+        value: 'getTables',
+        description: 'Retrieve all tables (campaigns) for a customer',
+        action: 'Get tables',
+      },
     ],
     default: 'createTable',
+  },
+
+  {
+    displayName: 'Table Name or ID',
+    name: 'tableId',
+    type: 'options',
+    typeOptions: { loadOptionsMethod: 'getCustomers' },
+    required: true,
+    default: '',
+    displayOptions: {
+      show: {
+        resource: ['table'],
+        operation: ['getTables'],
+      },
+    },
+    description:
+      'The ID of the table to retrieve (e.g. 6790b8ae761f3df5e44e95e4). Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
   },
 
   // Create Table fields

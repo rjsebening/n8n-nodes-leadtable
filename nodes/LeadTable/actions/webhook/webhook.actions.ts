@@ -1,5 +1,5 @@
 // nodes/LeadTable/actions/webhook/webhook.actions.ts
-import type { IExecuteFunctions } from 'n8n-workflow';
+import type { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getClient } from '../../methods/transport/http-client';
 
@@ -20,7 +20,7 @@ export async function runWebhook(self: IExecuteFunctions, i: number, operation: 
 
     const webhookUrl = self.getNodeParameter('webhookUrl', i) as string;
 
-    const body: any = { url: webhookUrl, topic, layer };
+    const body: IDataObject = { url: webhookUrl, topic, layer };
     if (layer === 'table') {
       const campaignId = self.getNodeParameter('campaignId', i) as string;
       body.campaignID = campaignId;

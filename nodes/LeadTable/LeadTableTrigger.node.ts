@@ -1,4 +1,6 @@
 import {
+  IDataObject,
+  IExecuteFunctions,
   IHookFunctions,
   INodeType,
   INodeTypeDescription,
@@ -19,13 +21,14 @@ export class LeadTableTrigger implements INodeType {
     icon: 'file:icon.svg',
     group: ['trigger'],
     version: 1,
+    usableAsTool: true,
     subtitle: '={{$parameter["webhookLevel"] + ": " + $parameter["event"]}}',
     description:
       'Trigger workflows on LeadTable events - Integration with LeadTable API (powered by agentur-systeme.de)',
     defaults: {
       name: 'LeadTable Trigger',
       // @ts-expect-error -- required by n8n linter
-      description: 'LeadTable Trigger integration node',
+      description: 'Integration with LeadTable API (powered by agentur-systeme.de)',
     },
     inputs: [],
     outputs: [NodeConnectionType.Main],
@@ -54,7 +57,7 @@ export class LeadTableTrigger implements INodeType {
       },
 
       async create(this: IHookFunctions): Promise<boolean> {
-        const api = getClient(this as any);
+        const api = getClient(this as unknown as IExecuteFunctions);
 
         const event = this.getNodeParameter('event') as string;
         const level = this.getNodeParameter('webhookLevel') as string;
@@ -68,17 +71,17 @@ export class LeadTableTrigger implements INodeType {
         }
 
         const hookUrl = this.getNodeWebhookUrl('default');
-        const body: any = { layer: level, topic: event, url: hookUrl };
+        const body: IDataObject = { layer: level, topic: event, url: hookUrl };
 
         if (level === 'table') {
           body.customerID = this.getNodeParameter('customerId', '') as string;
           body.campaignID = this.getNodeParameter('campaignId', '') as string;
         }
 
-        const res = await api.request('POST', '/attachWebhook', { body });
+        const res = (await api.request('POST', '/attachWebhook', { body })) as IDataObject;
 
         const store = this.getWorkflowStaticData('node');
-        store.webhookId = res?.externalHookId;
+        store.webhookId = res?.externalHookId as string | undefined;
         store.webhookUrl = hookUrl;
         store.webhookParams = body;
 
@@ -87,7 +90,7 @@ export class LeadTableTrigger implements INodeType {
 
       async delete(this: IHookFunctions): Promise<boolean> {
         try {
-          const api = getClient(this as any);
+          const api = getClient(this as unknown as IExecuteFunctions);
           const store = this.getWorkflowStaticData('node');
 
           if (!store.webhookId || !store.webhookUrl) return true;
@@ -124,17 +127,17 @@ export class LeadTableTrigger implements INodeType {
   };
 
   async webhook(this: IWebhookFunctions): Promise<IWebhookResponseData> {
-    const api = getClient(this as any);
+    const api = getClient(this as unknown as IExecuteFunctions);
     const req = this.getRequestObject();
 
     const includeLead = this.getNodeParameter('includeLead', true) as boolean;
 
-    const payload = req.body as any;
+    const payload = req.body as IDataObject;
 
     if (includeLead && payload?.leadID) {
       try {
-        const lead = await api.request('GET', `/lead/${payload.leadID}`);
-        payload.leadDetails = lead;
+        const lead = await api.request('GET', `/lead/${payload.leadID as string}`);
+        payload.leadDetails = lead as IDataObject;
       } catch (err) {
         payload.leadDetailsError = (err as Error).message;
       }
@@ -142,8 +145,10 @@ export class LeadTableTrigger implements INodeType {
 
     if (payload?.timestamp) {
       try {
-        payload.timestampFormatted = new Date(payload.timestamp).toISOString();
-      } catch {}
+        payload.timestampFormatted = new Date(payload.timestamp as string | number).toISOString();
+      } catch {
+        // ignore invalid timestamp
+      }
     }
 
     return { workflowData: [this.helpers.returnJsonArray([payload])] };

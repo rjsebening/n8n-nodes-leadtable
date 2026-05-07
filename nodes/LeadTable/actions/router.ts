@@ -1,13 +1,11 @@
 // nodes/LeadTable/actions/router.ts
-import { NodeOperationError, type IExecuteFunctions, type INodeExecutionData } from 'n8n-workflow';
+import { NodeOperationError, type IDataObject, type IExecuteFunctions, type INodeExecutionData } from 'n8n-workflow';
 import { runAuth } from './auth/auth.actions';
 import { runLead } from './lead/lead.actions';
 import { runCampaign } from './campaign/campaign.actions';
 import { runCustomer } from './customer/customer.actions';
 import { runTable } from './table/table.actions';
 import { runWebhook } from './webhook/webhook.actions';
-
-type Runner = (self: IExecuteFunctions, i: number, operation: string) => Promise<any>;
 
 const runners = {
   auth: runAuth,
@@ -32,8 +30,8 @@ export async function dispatchAndCollect(self: IExecuteFunctions): Promise<INode
 
   for (let i = 0; i < items.length; i++) {
     try {
-      const response = await run(self, i, operation);
-      const exec = self.helpers.constructExecutionMetaData(self.helpers.returnJsonArray(response as any), {
+      const response = (await run(self, i, operation)) as IDataObject | IDataObject[];
+      const exec = self.helpers.constructExecutionMetaData(self.helpers.returnJsonArray(response), {
         itemData: { item: i },
       });
       returnData.push(...exec);
