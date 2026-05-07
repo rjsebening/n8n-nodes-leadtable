@@ -5,10 +5,10 @@ dist/
 # Dependencies
 node_modules/
 
-# Package manager lock files (wähle eines basierend auf deinem Package Manager)
-package-lock.json
-# yarn.lock
-# pnpm-lock.yaml
+# Package manager lock files — commit the one your package manager uses.
+# package-lock.json is intentionally NOT ignored (npm ci / setup-node need it).
+yarn.lock
+pnpm-lock.yaml
 
 # Environment files
 .env
