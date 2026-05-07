@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-leadtable",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "n8n custom node for LeadTable API - Lead management and webhook automation",
   "license": "MIT",
   "homepage": "https://github.com/rjsebening/n8n-nodes-leadtable#readme",
@@ -8,7 +8,7 @@
     "name": "Jörg Sebening",
     "email": "dev@joerg-sebening.com"
   },
-    "keywords": [
+  "keywords": [
     "n8n-community-node-package",
     "n8n",
     "leadtable",
@@ -48,9 +48,9 @@
   "publishConfig": {
     "access": "public"
   },
-	"n8n": {
-		"n8nNodesApiVersion": 1,
-		"strict": true,
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "strict": true,
     "credentials": [
       "dist/credentials/LeadTableApi.credentials.js"
     ],
