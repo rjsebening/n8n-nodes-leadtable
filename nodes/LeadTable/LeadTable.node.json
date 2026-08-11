@@ -1,5 +1,5 @@
 {
-  "node": "n8n-nodes-base.LeadTable",
+  "node": "n8n-nodes-leadtable.leadTable",
   "nodeVersion": "1.0",
   "codexVersion": "1.0",
   "categories": ["Marketing & Content"],
