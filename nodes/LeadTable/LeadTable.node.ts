@@ -8,7 +8,7 @@ import {
   INodeExecutionData,
   INodeType,
   INodeTypeDescription,
-  NodeConnectionType,
+  NodeConnectionTypes,
 } from 'n8n-workflow';
 
 // Actions dispatcher (execute)
@@ -33,7 +33,10 @@ export class LeadTable implements INodeType {
   description: INodeTypeDescription = {
     displayName: 'LeadTable',
     name: 'leadTable',
-    icon: 'file:icon.svg',
+    icon: {
+      light: 'file:icon.light.svg',
+      dark: 'file:icon.dark.svg',
+    },
     group: ['transform'],
     version: 1,
     usableAsTool: true,
@@ -44,8 +47,8 @@ export class LeadTable implements INodeType {
       // @ts-expect-error required by n8n linter
       description: 'Integration with LeadTable API (powered by agentur-systeme.de)',
     },
-    inputs: [NodeConnectionType.Main],
-    outputs: [NodeConnectionType.Main],
+    inputs: [NodeConnectionTypes.Main],
+    outputs: [NodeConnectionTypes.Main],
     credentials: [
       {
         name: 'leadTableApi',

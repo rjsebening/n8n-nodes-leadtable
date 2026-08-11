@@ -6,7 +6,7 @@ import {
   INodeTypeDescription,
   IWebhookFunctions,
   IWebhookResponseData,
-  NodeConnectionType,
+  NodeConnectionTypes,
   NodeOperationError,
 } from 'n8n-workflow';
 
@@ -18,10 +18,12 @@ export class LeadTableTrigger implements INodeType {
   description: INodeTypeDescription = {
     displayName: 'LeadTable Trigger',
     name: 'leadTableTrigger',
-    icon: 'file:icon.svg',
+    icon: {
+      light: 'file:icon.light.svg',
+      dark: 'file:icon.dark.svg',
+    },
     group: ['trigger'],
     version: 1,
-    usableAsTool: true,
     subtitle: '={{$parameter["webhookLevel"] + ": " + $parameter["event"]}}',
     description:
       'Trigger workflows on LeadTable events - Integration with LeadTable API (powered by agentur-systeme.de)',
@@ -31,7 +33,7 @@ export class LeadTableTrigger implements INodeType {
       description: 'Integration with LeadTable API (powered by agentur-systeme.de)',
     },
     inputs: [],
-    outputs: [NodeConnectionType.Main],
+    outputs: [NodeConnectionTypes.Main],
     credentials: [{ name: 'leadTableApi', required: true }],
     webhooks: [
       {

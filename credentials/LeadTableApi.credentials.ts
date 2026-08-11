@@ -2,7 +2,10 @@ import { IAuthenticateGeneric, ICredentialTestRequest, ICredentialType, Icon, IN
 
 export class LeadTableApi implements ICredentialType {
   name = 'leadTableApi';
-  icon: Icon = 'file:icon.svg';
+  icon: Icon = {
+    light: 'file:icon.light.svg',
+    dark: 'file:icon.dark.svg',
+  };
   displayName = 'LeadTable API';
   documentationUrl = 'https://github.com/rjsebening/n8n-nodes-leadtable/blob/main/CREDENTIALS.md';
 

@@ -1,5 +1,12 @@
 // nodes/LeadTable/actions/router.ts
-import { NodeOperationError, type IDataObject, type IExecuteFunctions, type INodeExecutionData } from 'n8n-workflow';
+import {
+  NodeApiError,
+  NodeOperationError,
+  type IDataObject,
+  type IExecuteFunctions,
+  type INodeExecutionData,
+  type JsonObject,
+} from 'n8n-workflow';
 import { runAuth } from './auth/auth.actions';
 import { runLead } from './lead/lead.actions';
 import { runCampaign } from './campaign/campaign.actions';
@@ -44,7 +51,9 @@ export async function dispatchAndCollect(self: IExecuteFunctions): Promise<INode
         returnData.push(...exec);
         continue;
       }
-      throw error;
+      throw error instanceof NodeApiError || error instanceof NodeOperationError
+        ? error
+        : new NodeApiError(self.getNode(), error as JsonObject);
     }
   }
 
